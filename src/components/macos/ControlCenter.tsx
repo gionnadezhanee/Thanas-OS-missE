@@ -57,7 +57,7 @@ export const ControlCenter = ({ open, onClose }: Props) => {
             {/* LEFT: connectivity stack */}
             <div className="rounded-2xl bg-white/10 p-2.5 flex flex-col gap-1.5">
               <ConnRow active={settings.wifi} onClick={() => updateSettings({ wifi: !settings.wifi })}
-                icon={<IoIosWifi className="w-[24px] h-[24px]" />} label="Wi-Fi" sub={settings.wifi ? 'ThanasOS-Net' : 'Off'} />
+                icon={<IoIosWifi className="w-[24px] h-[24px]" />} label="Wi-Fi" sub={settings.wifi ? 'THE MAIN DESK' : 'Off'} />
               <ConnRow active={settings.bluetooth} onClick={() => updateSettings({ bluetooth: !settings.bluetooth })}
                 icon={<IoBluetooth className="w-[22px] h-[22px]" />} label="Bluetooth" sub={settings.bluetooth ? 'On' : 'Off'} />
               <ConnRow active={settings.airdrop} onClick={() => updateSettings({ airdrop: !settings.airdrop })}

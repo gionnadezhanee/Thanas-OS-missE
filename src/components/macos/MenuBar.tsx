@@ -480,7 +480,7 @@ export const MenuBar = ({ onSpotlightClick }: MenuBarProps) => {
 
                 <div className="text-[11px] text-white/55 px-2 mb-1">Networks</div>
                 {[
-                  { name: 'ThanasOS-Net', current: true },
+                  { name: 'THE MAIN DESK', current: true },
                   { name: 'PESU-Wifi', current: false },
                   { name: 'JioFiber-5G', current: false },
                   { name: 'Cubbon Cafe', current: false },

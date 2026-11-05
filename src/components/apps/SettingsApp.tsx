@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Search, Bluetooth, Battery, HardDrive, Lock as LockIcon, ChevronRight, Bell,
+  Search, Bluetooth, Battery, HardDrive, Headphones, Lock as LockIcon, ChevronRight, Bell,
   Volume2, Moon, Clock, Globe, RefreshCw, Settings as SettingsIcon, Eye, Layout, Palette, Compass,
-  Sun, Star, ArrowDownToLine, Languages, Database, Share2, Keyboard, Gauge, User, type LucideIcon,
+  Sun, Star, ArrowDownToLine, Languages, Database, Share2, Keyboard, Mouse, Speaker, Gauge, User, type LucideIcon,
 } from 'lucide-react';
 import { IoIosWifi } from 'react-icons/io';
 import airdropImg from '@/assets/airdrop-icon-new.png';
@@ -89,6 +89,15 @@ const GENERAL_ITEMS: { id: GeneralSubsection; label: string; icon: LucideIcon; t
   { id: 'time-machine', label: 'Time Machine', icon: Database, tint: '#34c759' },
   { id: 'transfer', label: 'Transfer or Reset', icon: ArrowDownToLine, tint: '#8e8e93' },
   { id: 'startup', label: 'Startup Disk', icon: HardDrive, tint: '#8e8e93' },
+];
+
+const BLUETOOTH_DEVICES: { name: string; status: 'Connected' | 'Not Connected'; icon: LucideIcon }[] = [
+  { name: 'Magic Keyboard', status: 'Connected', icon: Keyboard },
+  { name: 'Magic Mouse', status: 'Connected', icon: Mouse },
+  { name: 'Echo Pop 0AS', status: 'Connected', icon: Speaker },
+  { name: 'AirPods Pro', status: 'Not Connected', icon: Headphones },
+  { name: 'Beats Pill', status: 'Not Connected', icon: Speaker },
+  { name: 'AirPods Max', status: 'Not Connected', icon: Headphones },
 ];
 
 export const SettingsApp = () => {
@@ -232,12 +241,12 @@ export const SettingsApp = () => {
 
             {section === 'wifi' && (
               <Card>
-                <Row label="Wi-Fi" desc={settings.wifi ? 'ThanasOS-Net' : 'Off'}>
+                <Row label="Wi-Fi" desc={settings.wifi ? 'THE MAIN DESK' : 'Off'}>
                   <Switch checked={!!settings.wifi} onCheckedChange={v => updateSettings({ wifi: v })} />
                 </Row>
                 {settings.wifi && (
                   <>
-                    <Row label="Network Name" desc="ThanasOS-Net" />
+                    <Row label="Network Name" desc="THE MAIN DESK" />
                     <Row label="Ask to join networks" desc="Known networks join automatically.">
                       <Switch checked defaultChecked />
                     </Row>
@@ -247,11 +256,27 @@ export const SettingsApp = () => {
             )}
 
             {section === 'bluetooth' && (
-              <Card>
-                <Row label="Bluetooth" desc={settings.bluetooth ? 'On' : 'Off'}>
-                  <Switch checked={!!settings.bluetooth} onCheckedChange={v => updateSettings({ bluetooth: v })} />
-                </Row>
-              </Card>
+              <>
+                <Card>
+                  <Row label="Bluetooth" desc={settings.bluetooth ? 'On' : 'Off'}>
+                    <Switch checked={!!settings.bluetooth} onCheckedChange={v => updateSettings({ bluetooth: v })} />
+                  </Row>
+                </Card>
+                <div className="mt-6">
+                  <div className="text-[13px] font-semibold mb-2">My Devices</div>
+                  <Card>
+                    {BLUETOOTH_DEVICES.map(({ name, status, icon: DeviceIcon }) => (
+                      <div key={name} className={`flex items-center gap-3 px-4 py-3 ${settings.bluetooth ? '' : 'opacity-50'}`} aria-disabled={!settings.bluetooth}>
+                        <DeviceIcon className="w-4 h-4 shrink-0 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+                        <span className="flex-1 text-[13px]">{name}</span>
+                        <span className="text-[13px] text-neutral-500 dark:text-neutral-400">
+                          {settings.bluetooth ? status : 'Unavailable'}
+                        </span>
+                      </div>
+                    ))}
+                  </Card>
+                </div>
+              </>
             )}
 
             {section === 'sound' && (
