@@ -8,7 +8,7 @@ const file = (content: string): FsNode => ({ type: 'file', content });
 
 export const ROOT: FsNode = dir({
   Users: dir({
-    thanas: dir({ 'READ ME.md': file('# READ ME\n\n[Miss Editaire’s introduction goes here.]'),
+    thanas: dir({ 'READ ME.md': file("# READ ME\n\n**A NOTE FROM THE EDITOR**\n\nWell, look who made it into my files.\n\nIf you've made it this far into my computer, you've officially found the part of my brain where all my creative ideas live.\n\nThis is where I keep my creative experiments, imaginary worlds, brand concepts, characters, personas, and everything else I've managed to dream up.\n\nSome projects are fully developed. Others are still works in progress. And some may never be finished at all. That's just how it goes around here.\n\nEvery folder tells its own story, has its own personality, and holds a little world waiting for you to explore. No two are necessarily alike, and that's exactly how I like it.\n\nOne thing before you start clicking around: **I'm sensitive about my shit, okay?** Consider this your official disclaimer.\n\nNow, make yourself comfortable. Look around. Get curious.\n\nWelcome to Blueprints.\n\n*Signed,*\n\n**Miss Editaire**"),
       Desktop: dir({
         'README.md': file('# Welcome to ThanasOS\n\nThis is your **Desktop**.\nDrag, drop, magnify.\n\n- Hit `Cmd+K` to open Spotlight\n- Open Launchpad from the dock\n- Try `open terminal` in Terminal\n'),
         'notes.txt': file('Random thoughts:\n- ship more\n- write less yaml\n- design with conviction\n'),
