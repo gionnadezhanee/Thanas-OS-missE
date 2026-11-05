@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useImagePreloader } from '@/hooks/useImagePreloader';
-import wallpaperLock from '@/assets/wallpaper-tahoe.jpg';
+const wallpaperLock = '/miss-editaire-zebra.png';
 
 interface Props {
   onUnlock: () => void;
