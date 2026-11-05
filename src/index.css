@@ -304,30 +304,6 @@ All colors MUST be HSL.
   transform: translateY(-100%);
 }
 
-/* GitHub README markdown rendering */
-.gh-readme { font-size: 14px; line-height: 1.55; }
-.gh-readme table { display: table; width: 100%; border-collapse: collapse; table-layout: fixed; margin: 0.6em 0; }
-.gh-readme thead { display: table-header-group; }
-.gh-readme tbody { display: table-row-group; }
-.gh-readme tr { display: table-row; }
-.gh-readme td, .gh-readme th { display: table-cell; vertical-align: top; padding: 6px 12px; border: 0; }
-.gh-readme th { background: transparent; font-weight: 600; }
-.gh-readme img { display: inline-block; max-width: 100%; height: auto; vertical-align: middle; }
-.gh-readme p { margin: 0.4em 0; }
-.gh-readme h1, .gh-readme h2, .gh-readme h3 { font-weight: 600; margin: 0.4em 0 0.5em; line-height: 1.25; }
-.gh-readme h1 { font-size: 1.7em; padding-bottom: .3em; border-bottom: 1px solid currentColor; border-color: rgba(127,127,127,.25); }
-.gh-readme h2 { font-size: 1.35em; padding-bottom: .3em; border-bottom: 1px solid rgba(127,127,127,.25); }
-.gh-readme h3 { font-size: 1.1em; }
-.gh-readme a { color: #2f81f7; text-decoration: none; }
-.gh-readme a:hover { text-decoration: underline; }
-.gh-readme hr { border: 0; border-top: 1px solid rgba(127,127,127,.25); margin: 1em 0; }
-.gh-readme ul, .gh-readme ol { padding-left: 1.6em; margin: 0.4em 0; }
-.gh-readme code { background: rgba(127,127,127,.15); padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; }
-.gh-readme pre { background: rgba(127,127,127,.12); padding: 12px; border-radius: 8px; overflow:auto; }
-.gh-readme blockquote { border-left: 3px solid rgba(127,127,127,.4); padding-left: 12px; color: inherit; opacity: 0.85; margin: 0.4em 0; }
-.gh-readme p[align="left"] img,
-.gh-readme p[align="center"] img { display: inline-block; }
-
 /* Hide Mapbox branding inside Maps app */
 .maps-app-container .mapboxgl-ctrl-logo,
 .maps-app-container .mapboxgl-ctrl-attrib,

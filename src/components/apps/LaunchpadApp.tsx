@@ -5,14 +5,11 @@ import { getProject } from '@/lib/projects';
 import { setPendingSafariUrl } from '@/lib/installedApps';
 import finderIcon from '@/assets/finder-icon.png';
 import aboutIcon from '@/assets/user-profile-icon.png';
-import techIcon from '@/assets/vscode-icon.png';
 import projectsIcon from '@/assets/projects-icon.png';
 import journeyIcon from '@/assets/journey-icon.png';
-import githubIcon from '@/assets/github-icon.png';
 import linkedinIcon from '@/assets/linkedin-icon.png';
 import contactIcon from '@/assets/contact-icon.png';
 import settingsIcon from '@/assets/settings-icon.png';
-import terminalIcon from '@/assets/terminal-icon.png';
 import safariIcon from '@/assets/safari-icon.png';
 import notesIcon from '@/assets/notes-icon.png';
 import appstoreIcon from '@/assets/appstore-icon.png';
@@ -26,14 +23,11 @@ import mapsIcon from '@/assets/maps-icon.png';
 export const APP_ICONS: Record<string, string> = {
   finder: finderIcon,
   about: aboutIcon,
-  technologies: techIcon,
   projects: projectsIcon,
   journey: journeyIcon,
-  github: githubIcon,
   linkedin: linkedinIcon,
   contact: contactIcon,
   settings: settingsIcon,
-  terminal: terminalIcon,
   safari: safariIcon,
   notes: notesIcon,
   appstore: appstoreIcon,

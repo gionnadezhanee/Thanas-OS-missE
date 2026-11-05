@@ -1,7 +1,11 @@
 import { useEffect } from 'react';
 
 // Eagerly import every asset so they're cached at boot.
-const allAssets = import.meta.glob('../assets/*.{png,jpg,jpeg,webp,svg}', {
+const allAssets = import.meta.glob([
+  '../assets/*.{png,jpg,jpeg,webp,svg}',
+  '!../assets/github-icon.png',
+  '!../assets/vscode-icon.png',
+], {
   eager: true,
   query: '?url',
   import: 'default',
@@ -9,9 +13,7 @@ const allAssets = import.meta.glob('../assets/*.{png,jpg,jpeg,webp,svg}', {
 
 // Banner / hero assets that should be ready before the user opens those apps.
 const PRIORITY_BANNERS = [
-  'github-icon',
   'linkedin-banner',
-  'vscode-icon',
   'calendar-icon-new',
 ];
 

@@ -25,7 +25,7 @@ function AppleHelloEffect({
 }: Props) {
   const calc = (x: number) => x * speed;
 
-  // Lazy warm-up: kick off dynamic imports of every app while the Hello plays so
+  // Lazy warm-up: kick off dynamic imports of app modules while the Hello plays so
   // first-launch feels instant.
   if (typeof window !== 'undefined' && !(window as unknown as { __thanasosWarmed?: boolean }).__thanasosWarmed) {
     (window as unknown as { __thanasosWarmed?: boolean }).__thanasosWarmed = true;
@@ -33,12 +33,10 @@ function AppleHelloEffect({
       import('@/components/apps/SafariApp'),
       import('@/components/apps/FinderApp'),
       import('@/components/apps/NotesApp'),
-      import('@/components/apps/TerminalApp'),
       import('@/components/apps/LaunchpadApp'),
       import('@/components/apps/AppStoreApp'),
       import('@/components/apps/MapsApp'),
       import('@/components/apps/JourneyApp'),
-      import('@/components/apps/TechnologiesApp'),
       import('@/components/apps/SettingsApp'),
       import('@/components/apps/CalculatorApp'),
       import('@/components/apps/GoogleApp'),
