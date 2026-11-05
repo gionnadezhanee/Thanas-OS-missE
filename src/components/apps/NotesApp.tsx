@@ -21,7 +21,7 @@ export const NotesApp = () => {
     ...NOTE_FOLDERS.map(folder => ({
       ...folder,
       icon: Folder,
-      cnt: BLOG_POSTS.filter(note => note.folderId === folder.id).length,
+      count: BLOG_POSTS.filter(note => note.folderId === folder.id).length,
     })),
   ];
 
