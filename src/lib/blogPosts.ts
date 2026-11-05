@@ -1,9 +1,17 @@
+export const NOTE_FOLDERS = [
+  { id: 'brain-dumps', name: 'Brain Dumps' },
+  { id: 'short-stories', name: 'Short Stories' },
+] as const;
+
+export type NoteFolderId = (typeof NOTE_FOLDERS)[number]['id'];
+
 export interface BlogPost {
   id: string;
   title: string;
   date: string;
   preview: string;
   content: string;
+  folderId?: NoteFolderId;
 }
 
 export const BLOG_POSTS: BlogPost[] = [
