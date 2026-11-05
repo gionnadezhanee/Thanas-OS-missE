@@ -372,7 +372,7 @@ export const SettingsApp = () => {
             {section === 'privacy' && (
               <Card>
                 <Row label="Location Services" desc="Off"><Switch checked={false} onCheckedChange={() => {}} /></Row>
-                <Row label="Analytics & Improvements" desc="Help improve ThanasOS."><Switch checked={false} onCheckedChange={() => {}} /></Row>
+                <Row label="Analytics & Improvements" desc="Help improve EditaireOS."><Switch checked={false} onCheckedChange={() => {}} /></Row>
               </Card>
             )}
 
