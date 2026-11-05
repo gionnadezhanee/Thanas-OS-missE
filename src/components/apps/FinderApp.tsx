@@ -15,7 +15,7 @@ const SIDEBAR = [
   { label: 'Favorites', items: [
     { name: 'thanas', path: HOME, icon: Star },
     { name: 'Documents', path: HOME + '/Documents', icon: FileText },
-    { name: 'Downloads', path: HOME + '/Downloads', icon: Download },
+    { name: 'Blueprints', path: HOME + '/Downloads', icon: Download },
     { name: 'Desktop', path: HOME + '/Desktop', icon: FileText },
     { name: 'Pictures', path: HOME + '/Pictures', icon: ImageIcon },
     { name: 'Music', path: HOME + '/Music', icon: Music },
