@@ -37,7 +37,7 @@ const wallpapers = {
   'wallpaper-vineyard': wallpaperVineyard,
   'wallpaper-catalina': wallpaperCatalina,
   'wallpaper-valley': wallpaperValley,
-  'wallpaper-mountain': wallpaperMountain,
+  "wallpaper-mountain": "/miss-editaire-zebra.png",
   'wallpaper-bigsur': wallpaperBigsur,
   'wallpaper-snow': wallpaperSnow,
   'wallpaper-aurora': wallpaperAurora,
