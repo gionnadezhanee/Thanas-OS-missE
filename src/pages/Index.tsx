@@ -6,17 +6,13 @@ import { SleepScreen } from '@/components/macos/SleepScreen';
 import { RestartScreen } from '@/components/macos/RestartScreen';
 import { HelloIntro } from '@/components/macos/HelloIntro';
 import { MobileFallback } from '@/components/MobileFallback';
-import { JourneyApp } from '@/components/apps/JourneyApp';
 import { ContactApp } from '@/components/apps/ContactApp';
-import { LinkedInApp } from '@/components/apps/LinkedInApp';
 import { SettingsApp } from '@/components/apps/SettingsApp';
 import { FinderApp } from '@/components/apps/FinderApp';
 import { LaunchpadApp } from '@/components/apps/LaunchpadApp';
 import { NotesApp } from '@/components/apps/NotesApp';
 import { SafariApp } from '@/components/apps/SafariApp';
 import { AppStoreApp } from '@/components/apps/AppStoreApp';
-import { CalculatorApp } from '@/components/apps/CalculatorApp';
-import { GoogleApp } from '@/components/apps/GoogleApp';
 import { CalendarApp } from '@/components/apps/CalendarApp';
 import { AppleMusicApp } from '@/components/apps/AppleMusicApp';
 import { MapsApp } from '@/components/apps/MapsApp';
@@ -25,16 +21,12 @@ import { AppConfig } from '@/types/macos';
 const apps: AppConfig[] = [
   { id: 'finder', name: 'Finder', icon: '📁', component: FinderApp, defaultSize: { width: 930, height: 600 }, chromeMode: 'integrated' },
   { id: 'launchpad', name: 'Launchpad', icon: '🚀', component: LaunchpadApp, defaultSize: { width: 1000, height: 700 } },
-  { id: 'journey', name: 'Journey', icon: '🚀', component: JourneyApp, defaultSize: { width: 1200, height: 825 }, chromeMode: 'integrated' },
   { id: 'notes', name: 'Notes', icon: '📒', component: NotesApp, defaultSize: { width: 1100, height: 780 }, chromeMode: 'integrated' },
   { id: 'maps', name: 'Maps', icon: '🗺️', component: MapsApp, defaultSize: { width: 1150, height: 790 }, chromeMode: 'integrated' },
   { id: 'calendar', name: 'Calendar', icon: '📅', component: CalendarApp, defaultSize: { width: 1300, height: 900 }, chromeMode: 'integrated' },
   { id: 'safari', name: 'Safari', icon: '🧭', component: SafariApp, defaultSize: { width: 1580, height: 1070 }, chromeMode: 'integrated' },
-  { id: 'google', name: 'Google', icon: 'G', component: GoogleApp, defaultSize: { width: 1580, height: 1070 }, chromeMode: 'integrated' },
   { id: 'applemusic', name: 'Music', icon: '🎵', component: AppleMusicApp, defaultSize: { width: 1320, height: 950 }, chromeMode: 'integrated' },
-  { id: 'linkedin', name: 'LinkedIn', icon: '💼', component: LinkedInApp, defaultSize: { width: 1080, height: 880 }, chromeMode: 'integrated' },
   { id: 'contact', name: 'Contact', icon: '✉️', component: ContactApp, defaultSize: { width: 850, height: 750 }, chromeMode: 'integrated' },
-  { id: 'calculator', name: 'Calculator', icon: '🧮', component: CalculatorApp, defaultSize: { width: 300, height: 520 }, nonResizable: true, noMaximize: true, chromeMode: 'integrated' },
   { id: 'appstore', name: 'App Store', icon: '🛍️', component: AppStoreApp, defaultSize: { width: 1100, height: 680 }, chromeMode: 'integrated' },
   { id: 'settings', name: 'Settings', icon: '⚙️', component: SettingsApp, defaultSize: { width: 1000, height: 790 }, chromeMode: 'integrated' },
 ];

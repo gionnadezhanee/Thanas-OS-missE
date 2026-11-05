@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 const STORAGE_KEY = 'thanasos-installed-projects';
-const GOOGLE_KEY = 'thanasos-google-installed';
 const listeners = new Set<() => void>();
 
 const read = (): string[] => {
@@ -37,36 +36,6 @@ export const useInstalledProjects = () => {
     return () => { listeners.delete(fn); };
   }, []);
   return ids;
-};
-
-// --- Google app install state (separate from project installs) ---
-// Default to installed (the "Chrome" app ships preinstalled).
-const readGoogle = () => {
-  try {
-    const v = localStorage.getItem(GOOGLE_KEY);
-    if (v === null) return true;
-    return v === '1';
-  } catch { return true; }
-};
-
-export const installGoogleApp = () => {
-  localStorage.setItem(GOOGLE_KEY, '1');
-  listeners.forEach(fn => fn());
-};
-export const uninstallGoogleApp = () => {
-  localStorage.setItem(GOOGLE_KEY, '0');
-  listeners.forEach(fn => fn());
-};
-export const isGoogleInstalled = readGoogle;
-
-export const useGoogleInstalled = () => {
-  const [v, setV] = useState<boolean>(readGoogle);
-  useEffect(() => {
-    const fn = () => setV(readGoogle());
-    listeners.add(fn);
-    return () => { listeners.delete(fn); };
-  }, []);
-  return v;
 };
 
 // Safari URL handoff — set before opening Safari to preload a page

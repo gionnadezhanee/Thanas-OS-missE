@@ -13,7 +13,6 @@ const allAssets = import.meta.glob([
 
 // Banner / hero assets that should be ready before the user opens those apps.
 const PRIORITY_BANNERS = [
-  'linkedin-banner',
   'calendar-icon-new',
 ];
 
@@ -45,13 +44,6 @@ export const preloadAllAssets = () => {
     img.decode?.().catch(() => {});
   });
 
-  // Warm up the personal site iframe target so Journey opens instantly later
-  try {
-    const link = document.createElement('link');
-    link.rel = 'preconnect';
-    link.href = 'https://thanas.vercel.app';
-    document.head.appendChild(link);
-  } catch { /* ignore */ }
 };
 
 export const useImagePreloader = () => {

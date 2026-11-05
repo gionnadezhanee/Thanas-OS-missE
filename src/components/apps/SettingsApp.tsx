@@ -7,7 +7,6 @@ import {
 import { IoIosWifi } from 'react-icons/io';
 import airdropImg from '@/assets/airdrop-icon-new.png';
 import { useMacOS } from '@/contexts/MacOSContext';
-import { useGoogleInstalled } from '@/lib/installedApps';
 import { Switch } from '@/components/ui/switch';
 import { AppleSlider } from '@/components/ui/AppleSlider';
 import wallpaper1 from '@/assets/wallpaper-1.jpg';
@@ -29,7 +28,6 @@ import wallpaperAnnapurna from '@/assets/wallpaper-annapurna.jpg';
 import wallpaperAlps from '@/assets/wallpaper-alps.jpg';
 import wallpaperCat from '@/assets/wallpaper-cat.jpg';
 import safariIcon from '@/assets/safari-icon.png';
-import googleIcon from '@/assets/google-icon-new.png';
 import profilePhoto from '@/assets/profile-photo-new.jpg';
 
 const wallpapers = [
@@ -96,7 +94,6 @@ const GENERAL_ITEMS: { id: GeneralSubsection; label: string; icon: LucideIcon; t
 
 export const SettingsApp = () => {
   const { settings, updateSettings } = useMacOS();
-  const googleInstalled = useGoogleInstalled();
   const [section, setSection] = useState<SectionId>('apple-account');
   const [generalSub, setGeneralSub] = useState<GeneralSubsection>('about');
   const [query, setQuery] = useState('');
@@ -337,10 +334,10 @@ export const SettingsApp = () => {
 
             {section === 'browser' && (
               <Card>
-                <Row label="Default web browser" desc={googleInstalled ? 'Pick which browser opens links by default.' : 'Install Google from the App Store to choose it.'}>
-                  <div className="flex gap-3">
-                    <BrowserChoice img={safariIcon} label="Safari" active={settings.defaultBrowser !== 'google' || !googleInstalled} onClick={() => updateSettings({ defaultBrowser: 'safari' })} />
-                    <BrowserChoice img={googleIcon} label="Google" disabled={!googleInstalled} active={!!googleInstalled && settings.defaultBrowser === 'google'} onClick={() => updateSettings({ defaultBrowser: 'google' })} />
+                <Row label="Default web browser" desc="Links from this computer open in Safari.">
+                  <div className="flex items-center gap-2 px-2 py-1.5">
+                    <img src={safariIcon} alt="" className="h-8 w-8 object-contain" />
+                    <span className="text-[12px]">Safari</span>
                   </div>
                 </Row>
               </Card>
@@ -399,7 +396,6 @@ const AppleAccountPane = () => (
     </Card>
   </div>
 );
-
 const GeneralPane = ({ sub, setSub, batteryLevel, batteryCharging }: { sub: GeneralSubsection; setSub: (s: GeneralSubsection) => void; batteryLevel: number | null; batteryCharging: boolean }) => {
   const renderAbout = () => (
     <div className="px-8 pt-5 pb-10 max-w-2xl">
@@ -488,7 +484,6 @@ const Card = ({ children }: { children: React.ReactNode }) => (
     {children}
   </div>
 );
-
 const Row = ({ label, desc, children }: { label: string; desc?: string; children?: React.ReactNode }) => (
   <div className="flex items-center justify-between gap-4 px-4 py-3">
     <div className="min-w-0">
@@ -497,11 +492,4 @@ const Row = ({ label, desc, children }: { label: string; desc?: string; children
     </div>
     {children}
   </div>
-);
-
-const BrowserChoice = ({ img, label, active, disabled, onClick }: { img: string; label: string; active: boolean; disabled?: boolean; onClick: () => void }) => (
-  <button onClick={disabled ? undefined : onClick} disabled={disabled} className={`flex flex-col items-center gap-1 p-2 rounded-lg ring-2 transition-colors ${active ? 'ring-blue-500' : 'ring-transparent'} ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-neutral-100 dark:hover:bg-neutral-800'}`}>
-    <img src={img} alt={label} className="w-10 h-10 object-contain" />
-    <div className="text-[11px]">{label}</div>
-  </button>
 );

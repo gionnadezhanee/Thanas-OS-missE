@@ -1,21 +1,17 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useMacOS } from '@/contexts/MacOSContext';
-import { useInstalledProjects, useGoogleInstalled } from '@/lib/installedApps';
+import { useInstalledProjects } from '@/lib/installedApps';
 import { getProject } from '@/lib/projects';
 import { setPendingSafariUrl } from '@/lib/installedApps';
 import finderIcon from '@/assets/finder-icon.png';
 import aboutIcon from '@/assets/user-profile-icon.png';
 import projectsIcon from '@/assets/projects-icon.png';
-import journeyIcon from '@/assets/journey-icon.png';
-import linkedinIcon from '@/assets/linkedin-icon.png';
 import contactIcon from '@/assets/contact-icon.png';
 import settingsIcon from '@/assets/settings-icon.png';
 import safariIcon from '@/assets/safari-icon.png';
 import notesIcon from '@/assets/notes-icon.png';
 import appstoreIcon from '@/assets/appstore-icon.png';
 import launchpadIcon from '@/assets/launchpad-icon.png';
-import calculatorNewIcon from '@/assets/calculator-new-icon.png';
-import googleNewIcon from '@/assets/google-icon-new.png';
 import calendarIcon from '@/assets/calendar-icon-new.png';
 import appleMusicIcon from '@/assets/apple-music-icon.png';
 import mapsIcon from '@/assets/maps-icon.png';
@@ -24,16 +20,12 @@ export const APP_ICONS: Record<string, string> = {
   finder: finderIcon,
   about: aboutIcon,
   projects: projectsIcon,
-  journey: journeyIcon,
-  linkedin: linkedinIcon,
   contact: contactIcon,
   settings: settingsIcon,
   safari: safariIcon,
   notes: notesIcon,
   appstore: appstoreIcon,
   launchpad: launchpadIcon,
-  calculator: calculatorNewIcon,
-  google: googleNewIcon,
   calendar: calendarIcon,
   applemusic: appleMusicIcon,
   maps: mapsIcon,
@@ -44,14 +36,12 @@ const PAGE_SIZE = 28; // 7 cols x 4 rows
 export const LaunchpadApp = () => {
   const { apps, openApp, closeWindow, windows } = useMacOS();
   const installed = useInstalledProjects();
-  const googleInstalled = useGoogleInstalled();
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(0);
 
   const items = useMemo(() => {
     const core = apps
       .filter(a => a.id !== 'launchpad')
-      .filter(a => a.id !== 'google' || googleInstalled)
       .map(a => ({ id: a.id, name: a.name, icon: APP_ICONS[a.id], kind: 'app' as const, url: '' }));
     const projects = installed
       .map(getProject)
@@ -60,7 +50,7 @@ export const LaunchpadApp = () => {
     return [...core, ...projects].filter(i =>
       i.name.toLowerCase().includes(query.toLowerCase())
     );
-  }, [apps, installed, googleInstalled, query]);
+  }, [apps, installed, query]);
 
   const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
   const pageItems = items.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);

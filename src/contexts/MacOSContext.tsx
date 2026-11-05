@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { WindowState, MacOSSettings, DockItem, AppConfig } from '@/types/macos';
-import { useGoogleInstalled } from '@/lib/installedApps';
 import { setPlayerVolume } from '@/lib/nowPlaying';
 
 interface MacOSContextType {
@@ -45,15 +44,7 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
     const saved = localStorage.getItem('macos-settings');
     return saved ? { ...DEFAULT_SETTINGS, ...JSON.parse(saved) } : DEFAULT_SETTINGS;
   });
-  const googleInstalled = useGoogleInstalled();
-  const dockItems: DockItem[] = useMemo(() => {
-    const out: DockItem[] = [];
-    apps.forEach(a => {
-      if (a.id === 'google' && !googleInstalled) return;
-      out.push({ appId: a.id });
-    });
-    return out;
-  }, [apps, googleInstalled]);
+  const dockItems: DockItem[] = useMemo(() => apps.map(a => ({ appId: a.id })), [apps]);
 
   useEffect(() => {
     localStorage.setItem('macos-settings', JSON.stringify(settings));
@@ -208,10 +199,8 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
   };
 
   const openUrl = (url: string) => {
-    // route through default browser
     import('@/lib/installedApps').then(m => m.setPendingSafariUrl(url));
-    const browser = settings.defaultBrowser === 'google' && settings.googleInstalled ? 'google' : 'safari';
-    openApp(browser);
+    openApp('safari');
   };
 
   return (

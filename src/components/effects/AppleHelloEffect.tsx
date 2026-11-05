@@ -36,16 +36,11 @@ function AppleHelloEffect({
       import('@/components/apps/LaunchpadApp'),
       import('@/components/apps/AppStoreApp'),
       import('@/components/apps/MapsApp'),
-      import('@/components/apps/JourneyApp'),
       import('@/components/apps/SettingsApp'),
-      import('@/components/apps/CalculatorApp'),
-      import('@/components/apps/GoogleApp'),
       import('@/components/widgets/BengaluruWeatherWidget'),
       import('@/components/macos/LockScreen'),
       // Preload key icons used across menubar / control center / settings
-      import('@/assets/google-icon-new.png'),
       import('@/assets/airdrop-icon-new.png'),
-      import('@/assets/calculator-new-icon.png'),
     ]).catch(() => {});
   }
 

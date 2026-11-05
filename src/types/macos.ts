@@ -60,8 +60,6 @@ export interface MacOSSettings {
   focus?: boolean;
   doNotDisturb?: boolean;
   lowPowerMode?: boolean;
-  defaultBrowser?: 'safari' | 'google';
-  googleInstalled?: boolean;
 }
 
 export interface DockItem {
