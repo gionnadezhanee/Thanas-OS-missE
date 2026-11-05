@@ -23,8 +23,7 @@ export const ROOT: FsNode = dir({
         'beware.md': file('# ⚠️ READ THIS FIRST\n\nThere is a *thing* in the trash.\n\nDo **not** click on it.\n\n…unless you want to know what *Money Heist* has to do with all this.\n'),
       }),
       Downloads: dir({
-        'lipsum.txt': file('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n'),
-        'definitely-not-a-virus.exe': file('Just kidding. This is a `.txt` in disguise.\nNothing scary here. Move along.\n\n(But seriously, never run an unknown .exe.)\n'),
+      
         'passwords.txt': file('🔒 ACCESS DENIED\n\nNice try, friend. My passwords are not in plaintext.\nThey live in 1Password like a civilized person\'s.\n'),
       }),
       Music: dir({
