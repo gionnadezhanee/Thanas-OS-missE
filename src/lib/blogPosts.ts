@@ -9,57 +9,32 @@ export interface BlogPost {
 export const BLOG_POSTS: BlogPost[] = [
   {
     id: 'welcome',
-    title: 'Welcome to ThanasOS',
+    title: 'READ ME',
     date: '2026-05-14',
-    preview: 'The best web iteration of macOS online.',
-    content: `# Welcome to **ThanasOS**
+    preview: 'A note from the editor.',
+    content: `# READ ME
 
-> *"The best web iteration of macOS online."*
+**A NOTE FROM THE EDITOR**
 
-ThanasOS is a faithful, fully interactive recreation of macOS, rebuilt from the ground up for the browser. No iframes. No screenshots. Real components, real windows, real animations.
+Well, look who's reading my notes.
 
----
+If you've made it this far into my computer, you've officially found the part of my brain where all my thoughts live.
 
-## What this site is
+Consider this my personal collection of unfinished sentences, fully formed opinions, late-night realizations, questionable takes, and whatever else happens to cross my mind.
 
-This is not a portfolio with a macOS skin. It is a working desktop shell with:
+Some things are serious. Some are ridiculous. Some I might change my mind about tomorrow. That's the beauty of having a mind of your own.
 
-- A real window manager (drag, resize from any edge, focus, maximize, minimize)
-- A magnifying dock with live indicators
-- Per-app menus that change as you focus different apps
-- Spotlight search across every app, setting, note and project
-- Launchpad, Control Center, Notification Center, Lock Screen, Sleep Screen
-- Light and dark themes with brightness, reduced motion and 18 wallpapers
+Everything has its place around here. You'll find different folders for different kinds of thoughts, because even my chaos deserves a little organization.
 
----
+And just because I wrote it down doesn't mean I'm inviting a debate. Sometimes a girl just needs to get her shit off her chest.
 
-## Built from scratch
+Anyway, feel free to read between the lines. Just don't assume you've figured me out.
 
-Every widget on the desktop was hand-built for this project:
+Welcome to Notes.
 
-| Widget | Built from |
-|--------|------------|
-| Analog Utility Clock | Custom CSS keyframes, no library |
-| Bengaluru Weather | Live API, custom render |
-| Calendar | Pure React grid |
-| Stats | Battery API, navigator timing |
-| Now Playing Pill | Custom menu-bar surface |
+*Signed,*
 
----
-
-## What works right now
-
-Everything you can click. Open Terminal and type \`status\`. Open Safari and load a real site through the proxy race. Drop a wallpaper into Settings. Lock the screen with Ctrl Cmd Q. Search anything with Cmd plus K.
-
----
-
-## What is coming
-
-- Reorderable dock with drag-and-drop
-- A working Trash bin where closed windows can be restored
-- Mission Control, Stage Manager and more apps
-
-> ThanasOS will keep growing. Treat it as a long-running attempt to make the most complete macOS recreation that lives in a tab.`,
+**Miss Editaire**`,
   },
   {
     id: 'features',
