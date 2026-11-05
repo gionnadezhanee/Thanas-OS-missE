@@ -28,7 +28,6 @@ import wallpaperAnnapurna from '@/assets/wallpaper-annapurna.jpg';
 import wallpaperAlps from '@/assets/wallpaper-alps.jpg';
 import wallpaperCat from '@/assets/wallpaper-cat.jpg';
 import safariIcon from '@/assets/safari-icon.png';
-import profilePhoto from '@/assets/profile-photo-new.jpg';
 
 const wallpapers = [
   { id: 'wallpaper-mountain', src: wallpaperMountain, name: 'Highlands' },
@@ -168,9 +167,11 @@ export const SettingsApp = () => {
               : 'hover:bg-neutral-300/60 dark:hover:bg-neutral-800/60'
           }`}
         >
-          <img src={profilePhoto} alt="Thanas R" className="w-10 h-10 rounded-full object-cover ring-1 ring-black/10 dark:ring-white/10" />
+          <div className="w-10 h-10 rounded-full ring-1 ring-black/10 dark:ring-white/10 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+            <User className="w-5 h-5 text-neutral-400" aria-hidden="true" />
+          </div>
           <div className="min-w-0">
-            <div className="text-[13px] font-semibold truncate">Thanas R</div>
+            <div className="text-[13px] font-semibold truncate">Miss Editaire</div>
             <div className="text-[11px] text-neutral-500 dark:text-neutral-400 truncate">Apple Account</div>
           </div>
         </button>
@@ -201,7 +202,7 @@ export const SettingsApp = () => {
         </div>
       ) : section === 'general' ? (
         <div className="flex-1 min-h-0 bg-white dark:bg-neutral-900">
-          <GeneralPane sub={generalSub} setSub={setGeneralSub} batteryLevel={batteryLevel} batteryCharging={batteryCharging} />
+          <GeneralPane sub={generalSub} setSub={setGeneralSub} />
         </div>
       ) : (
         <div className="flex-1 overflow-auto bg-white dark:bg-neutral-900 thin-scrollbar">
@@ -365,9 +366,11 @@ export const SettingsApp = () => {
 const AppleAccountPane = () => (
   <div className="px-8 pt-5 pb-10 max-w-2xl mx-auto">
     <div className="flex flex-col items-center pt-4 pb-6 text-center">
-      <img src={profilePhoto} alt="Thanas R" className="w-20 h-20 rounded-full object-cover ring-1 ring-black/10 dark:ring-white/10 mb-3" />
-      <div className="text-[22px] font-semibold text-center">Thanas R</div>
-      <div className="text-[13px] text-neutral-500 text-center">thanas5.rd@gmail.com</div>
+      <div role="img" aria-label="Profile photo placeholder" className="w-20 h-20 rounded-full ring-1 ring-black/10 dark:ring-white/10 mb-3 bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+        <User className="w-9 h-9 text-neutral-400" aria-hidden="true" />
+      </div>
+      <div className="text-[22px] font-semibold text-center">Miss Editaire</div>
+      <div className="text-[13px] text-neutral-500 text-center">maindesk@misseditaire.com</div>
       <div className="text-[12px] text-neutral-500 mt-0.5 text-center">Apple Account</div>
     </div>
     <Card>
@@ -383,41 +386,39 @@ const AppleAccountPane = () => (
     </Card>
     <div className="text-[13px] font-semibold mt-6 mb-2">Devices</div>
     <Card>
-      <KV k="MacBook Air M6 (this device)" v="Online" />
-      <KV k="Thanas's iPhone 17" v="This iPhone 17" />
-      <KV k="Thanas's iPhone" v="iPhone 6" />
-      <KV k="iPad" v="iPad Air" />
-      <KV k="iPhone 5" v="iPhone 5" />
-      <KV k="iPhone 8 Plus" v="iPhone 8 Plus" />
-      <KV k="THANAS-LAPTOP" v="Windows" />
-      <KV k="Thanas's iPad" v="iPad" />
-      <KV k="Thanas's iPhone 13 Pro Max" v="iPhone 13 Pro Max" />
-      <KV k="Thanas's iPhone XR" v="iPhone XR" />
+      <KV k="Miss Editaire’s MacBook" v="MacBook Neo · Green · This Device" />
+      <KV k="Miss Editaire’s iMac" v="iMac 24” Blue" />
+      <KV k="iPhone 17" v="" />
+      <KV k="iPhone 13 Pro Max" v="" />
+      <KV k="Miss Editaire’s iPad" v="iPad A16 Pink" />
+      <KV k="Miss E’s Apple Watch" v="Apple Watch SE" />
     </Card>
   </div>
 );
-const GeneralPane = ({ sub, setSub, batteryLevel, batteryCharging }: { sub: GeneralSubsection; setSub: (s: GeneralSubsection) => void; batteryLevel: number | null; batteryCharging: boolean }) => {
+const GeneralPane = ({ sub, setSub }: { sub: GeneralSubsection; setSub: (s: GeneralSubsection) => void }) => {
   const renderAbout = () => (
     <div className="px-8 pt-5 pb-10 max-w-2xl">
       <div className="flex flex-col items-center pb-6">
-        <img src={profilePhoto} alt="ThanasOS" className="w-32 h-32 object-contain rounded-2xl" />
-        <div className="text-[28px] font-semibold mt-3">ThanasOS</div>
+        <div role="img" aria-label="Profile photo placeholder" className="w-32 h-32 flex items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-800 text-neutral-400">
+          <User className="w-14 h-14" aria-hidden="true" />
+        </div>
+        <div className="text-[28px] font-semibold mt-3">MISS ÉDITAIRE’S OS</div>
         <div className="text-[13px] text-neutral-500">2026</div>
       </div>
       <Card>
-        <KV k="Model Name" v="MacBook Air" />
-        <KV k="Model Identifier" v="MacBookAir2026,1" />
-        <KV k="Chip" v="Apple M5" />
-        <KV k="Total Number of Cores" v="10 (4 performance and 6 efficiency)" />
-        <KV k="Memory" v="24 GB Unified Memory" />
+        <KV k="Model Name" v="MacBook Neo" />
+        <KV k="Model Identifier" v="Mac17,5" />
+        <KV k="Chip" v="Apple A18 Pro" />
+        <KV k="Total Number of Cores" v="6" />
+        <KV k="Memory" v="8 GB Unified Memory" />
         <KV k="Storage" v="512 GB SSD" />
-        <KV k="Display" v="13.6-inch Liquid Retina, 2560×1664" />
-        <KV k="Serial Number" v="THANAS-OS-2026" />
-        <KV k="Battery" v={batteryLevel !== null ? `${batteryLevel}%${batteryCharging ? ' Charging' : ''}` : 'Unavailable'} />
+        <KV k="Display" v="13-inch Liquid Retina, 2408 × 1506" />
+        <KV k="Serial Number" v="from-the-desk-of-OS" />
+        <KV k="Battery" v="Unavailable" />
       </Card>
       <div className="text-[13px] font-semibold mt-6 mb-2">macOS</div>
       <Card>
-        <KV k="ThanasOS" v="Version 1.0 (Build 2026.05)" />
+        <KV k="EditaireOS" v="Version 1.0 (Build 2026.10)" />
       </Card>
     </div>
   );
