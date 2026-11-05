@@ -8,7 +8,7 @@ const file = (content: string): FsNode => ({ type: 'file', content });
 
 export const ROOT: FsNode = dir({
   Users: dir({
-    thanas: dir({
+    thanas: dir({ 'READ ME.md': file('# READ ME\n\n[Miss Editaire’s introduction goes here.]'),
       Desktop: dir({
         'README.md': file('# Welcome to ThanasOS\n\nThis is your **Desktop**.\nDrag, drop, magnify.\n\n- Hit `Cmd+K` to open Spotlight\n- Open Launchpad from the dock\n- Try `open terminal` in Terminal\n'),
         'notes.txt': file('Random thoughts:\n- ship more\n- write less yaml\n- design with conviction\n'),
