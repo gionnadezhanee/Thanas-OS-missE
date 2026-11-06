@@ -48,6 +48,7 @@ export const DEFAULT_WEATHER_LOCATION: WeatherLocation = {
 };
 
 const REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+export const MAX_WEATHER_NOTE_LENGTH = 150;
 
 interface OpenMeteoResponse {
   current: {
@@ -122,10 +123,13 @@ const WeatherGlyph = ({
 export const BengaluruWeatherWidget = ({
   className,
   location = DEFAULT_WEATHER_LOCATION,
+  note,
 }: {
   className?: string;
   location?: WeatherLocation;
+  note?: string;
 }) => {
+  const displayNote = note?.trim().slice(0, MAX_WEATHER_NOTE_LENGTH);
   const [current, setCurrent] = useState<CurrentWeather | null>(null);
   const [hours, setHours] = useState<HourSlot[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -318,6 +322,10 @@ export const BengaluruWeatherWidget = ({
             </div>
           ))}
         </div>
+
+        {displayNote && (
+          <p className="mt-2 text-[12px] italic leading-snug text-white/70 break-words">{displayNote}</p>
+        )}
       </div>
     </div>
   );

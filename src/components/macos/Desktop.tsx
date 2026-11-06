@@ -145,7 +145,7 @@ export const Desktop = () => {
 
       <div className="pt-7 h-full p-8">
         <div className="absolute top-12 left-6 space-y-3">
-          <BengaluruWeatherWidget />
+          <BengaluruWeatherWidget note="Currently accepting applications for a seasonal boyfriend." />
           <div className="flex gap-3 items-start">
             <UtilityClockWidget size={172} />
             <CalendarWidget />
