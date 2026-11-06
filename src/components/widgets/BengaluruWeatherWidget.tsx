@@ -29,6 +29,54 @@ interface HourSlot {
   isSunrise?: boolean;
 }
 
+export interface WeatherLocation {
+  city: string;
+  region: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+}
+
+export const DEFAULT_WEATHER_LOCATION: WeatherLocation = {
+  city: 'New York City',
+  region: 'New York',
+  country: 'USA',
+  latitude: 40.7128,
+  longitude: -74.006,
+  timezone: 'America/New_York',
+};
+
+const REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+
+interface OpenMeteoResponse {
+  current: {
+    temperature_2m: number;
+    weather_code: number;
+    is_day: number;
+  };
+  hourly: {
+    time: number[];
+    temperature_2m: number[];
+    weather_code: number[];
+    is_day: number[];
+  };
+  daily: {
+    temperature_2m_max: number[];
+    temperature_2m_min: number[];
+    sunrise: number[];
+    sunset: number[];
+  };
+}
+
+const formatCityTime = (timestamp: number, timezone: string, includeMinutes = false) =>
+  new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: 'numeric',
+    ...(includeMinutes ? { minute: '2-digit' as const } : {}),
+    hour12: true,
+  }).format(new Date(timestamp * 1000)).replace(/\s/g, '');
+
 const conditionLabel = (code: number, isDay: number) => {
   if (code === 0) return isDay ? 'Sunny' : 'Clear';
   if (code <= 2) return 'Partly Cloudy';
@@ -71,67 +119,141 @@ const WeatherGlyph = ({
   return <IoRainy {...props} />;
 };
 
-export const BengaluruWeatherWidget = ({ className }: { className?: string }) => {
+export const BengaluruWeatherWidget = ({
+  className,
+  location = DEFAULT_WEATHER_LOCATION,
+}: {
+  className?: string;
+  location?: WeatherLocation;
+}) => {
   const [current, setCurrent] = useState<CurrentWeather | null>(null);
   const [hours, setHours] = useState<HourSlot[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUnavailable, setIsUnavailable] = useState(false);
+  const { latitude, longitude, timezone } = location;
 
   useEffect(() => {
-    const url =
-      'https://api.open-meteo.com/v1/forecast?latitude=12.9716&longitude=77.5946&current=temperature_2m,is_day,weather_code&hourly=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min,sunset,sunrise&timezone=Asia%2FKolkata&forecast_days=2';
+    let cancelled = false;
+    let refreshTimeout: number | undefined;
+    let activeRequest: AbortController | undefined;
 
-    fetch(url)
-      .then((r) => r.json())
-      .then((j) => {
-        const cur = j.current;
-        const daily = j.daily;
+    const fetchWeather = async () => {
+      activeRequest = new AbortController();
+      setIsLoading(true);
+      setIsUnavailable(false);
+      setCurrent(null);
+      setHours([]);
 
-        setCurrent({
-          temp: Math.round(cur.temperature_2m),
-          weather_code: cur.weather_code,
-          is_day: cur.is_day,
-          high: Math.round(daily.temperature_2m_max[0]),
-          low: Math.round(daily.temperature_2m_min[0]),
+      try {
+        const params = new URLSearchParams({
+          latitude: String(latitude),
+          longitude: String(longitude),
+          current: 'temperature_2m,is_day,weather_code',
+          hourly: 'temperature_2m,weather_code,is_day',
+          daily: 'temperature_2m_max,temperature_2m_min,sunset,sunrise',
+          timezone,
+          forecast_days: '2',
+          timeformat: 'unixtime',
+          temperature_unit: 'fahrenheit',
         });
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`, {
+          signal: activeRequest.signal,
+        });
+        if (!response.ok) throw new Error('Weather request failed');
 
-        const now = new Date();
-        const idxNow = j.hourly.time.findIndex((t: string) => new Date(t) >= now);
-        const start = idxNow > 0 ? idxNow : 0;
-        const sunset = daily.sunset?.[0] ? new Date(daily.sunset[0]) : null;
-        const sunrise = daily.sunrise?.[1] ? new Date(daily.sunrise[1]) : null;
+        const data = await response.json() as OpenMeteoResponse;
+        const hourly = data?.hourly;
+        const daily = data?.daily;
+        const currentData = data?.current;
+        if (
+          !currentData || !hourly || !daily ||
+          !Array.isArray(hourly.time) || !Array.isArray(hourly.temperature_2m) ||
+          !Array.isArray(hourly.weather_code) || !Array.isArray(hourly.is_day) ||
+          !Array.isArray(daily.temperature_2m_max) || !Array.isArray(daily.temperature_2m_min)
+        ) {
+          throw new Error('Weather response is incomplete');
+        }
+
+        const dailyHigh = daily.temperature_2m_max[0];
+        const dailyLow = daily.temperature_2m_min[0];
+        if (![currentData.temperature_2m, currentData.weather_code, currentData.is_day, dailyHigh, dailyLow].every(Number.isFinite)) {
+          throw new Error('Weather response contains invalid values');
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const start = hourly.time.findIndex(timestamp => timestamp >= now);
+        if (start < 0 || start + 5 >= hourly.time.length) {
+          throw new Error('Hourly forecast is unavailable');
+        }
 
         const slots: HourSlot[] = [];
-        for (let i = 0; i < 6; i++) {
-          const k = start + i;
-          const t = new Date(j.hourly.time[k]);
-          const h = t.getHours();
-          const ampm = h >= 12 ? 'PM' : 'AM';
-          const hr = (h % 12) || 12;
-
+        for (let offset = 0; offset < 6; offset++) {
+          const index = start + offset;
+          const temperature = hourly.temperature_2m[index];
+          const code = hourly.weather_code[index];
+          const isDay = hourly.is_day[index];
+          if (![hourly.time[index], temperature, code, isDay].every(Number.isFinite)) {
+            throw new Error('Hourly forecast contains invalid values');
+          }
           slots.push({
-            hour: `${hr}${ampm}`,
-            temp: Math.round(j.hourly.temperature_2m[k]),
-            code: j.hourly.weather_code[k],
-            is_day: j.hourly.is_day[k],
+            hour: formatCityTime(hourly.time[index], timezone),
+            temp: Math.round(temperature),
+            code,
+            is_day: isDay,
           });
         }
 
-        const insertAt = (when: Date | null, marker: Partial<HourSlot>) => {
-          if (!when) return;
-          const slotStart = new Date(j.hourly.time[start]);
-          const last = new Date(j.hourly.time[start + 5]);
-          if (when < slotStart || when > last) return;
+        const firstHour = hourly.time[start];
+        const lastHour = hourly.time[start + 5];
+        const sunEvents = [
+          ...(Array.isArray(daily.sunrise) ? daily.sunrise.map(timestamp => ({ timestamp, isSunrise: true })) : []),
+          ...(Array.isArray(daily.sunset) ? daily.sunset.map(timestamp => ({ timestamp, isSunset: true })) : []),
+        ]
+          .filter(event => Number.isFinite(event.timestamp) && event.timestamp >= firstHour && event.timestamp <= lastHour)
+          .sort((first, second) => first.timestamp - second.timestamp);
 
-          const offsetH = Math.round((when.getTime() - slotStart.getTime()) / 3.6e6);
-          const label = `${(when.getHours() % 12) || 12}:${String(when.getMinutes()).padStart(2, '0')}`;
-          slots.splice(Math.min(offsetH, slots.length - 1), 0, { hour: label, temp: 0, code: 0, is_day: 1, ...marker });
-        };
+        sunEvents.forEach(event => {
+          const offset = Math.round((event.timestamp - firstHour) / 3600);
+          slots.splice(Math.min(offset, slots.length - 1), 0, {
+            hour: formatCityTime(event.timestamp, timezone, true),
+            temp: 0,
+            code: 0,
+            is_day: 1,
+            isSunrise: 'isSunrise' in event ? event.isSunrise : undefined,
+            isSunset: 'isSunset' in event ? event.isSunset : undefined,
+          });
+        });
 
-        insertAt(sunset, { isSunset: true });
-        insertAt(sunrise, { isSunrise: true });
+        if (cancelled) return;
+        setCurrent({
+          temp: Math.round(currentData.temperature_2m),
+          weather_code: currentData.weather_code,
+          is_day: currentData.is_day,
+          high: Math.round(dailyHigh),
+          low: Math.round(dailyLow),
+        });
         setHours(slots.slice(0, 6));
-      })
-      .catch(() => {});
-  }, []);
+      } catch {
+        if (!cancelled) {
+          setCurrent(null);
+          setHours([]);
+          setIsUnavailable(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+          refreshTimeout = window.setTimeout(() => { void fetchWeather(); }, REFRESH_INTERVAL_MS);
+        }
+      }
+    };
+
+    void fetchWeather();
+    return () => {
+      cancelled = true;
+      activeRequest?.abort();
+      if (refreshTimeout !== undefined) window.clearTimeout(refreshTimeout);
+    };
+  }, [latitude, longitude, timezone]);
 
   return (
     <div
@@ -142,7 +264,7 @@ export const BengaluruWeatherWidget = ({ className }: { className?: string }) =>
         <div className="flex items-start justify-between">
           <div>
             <div className="text-[14px]" style={{ fontWeight: 500, letterSpacing: '0.01em' }}>
-              Bengaluru
+              {location.city}
             </div>
 
             <div
@@ -155,6 +277,11 @@ export const BengaluruWeatherWidget = ({ className }: { className?: string }) =>
 
           <div className="text-right flex flex-col items-end gap-0.5">
             {current && <WeatherGlyph code={current.weather_code} isDay={current.is_day} size={22} />}
+            {!current && (isUnavailable || isLoading) && (
+              <div className="text-[12px] text-white/75" aria-live="polite">
+                {isUnavailable ? 'Weather unavailable' : 'Updating…'}
+              </div>
+            )}
 
             {current && (
               <>
