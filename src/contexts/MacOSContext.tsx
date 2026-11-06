@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
-import { WindowState, MacOSSettings, DockItem, AppConfig } from '@/types/macos';
+import { WindowState, MacOSSettings, DockItem, AppConfig, OpenAppOptions } from '@/types/macos';
 import { setPlayerVolume } from '@/lib/nowPlaying';
 
 interface MacOSContextType {
@@ -7,7 +7,7 @@ interface MacOSContextType {
   settings: MacOSSettings;
   dockItems: DockItem[];
   focusedWindowId: string | null;
-  openApp: (appId: string) => void;
+  openApp: (appId: string, options?: OpenAppOptions) => void;
   closeWindow: (windowId: string) => void;
   minimizeWindow: (windowId: string) => void;
   minimizeAllWindows: () => void;
@@ -52,7 +52,7 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
     setPlayerVolume(settings.volume ?? 65);
   }, [settings]);
 
-  const openApp = (appId: string) => {
+  const openApp = (appId: string, options?: OpenAppOptions) => {
     if (appId !== 'launchpad') {
       const lp = windows.find(w => w.appId === 'launchpad' && !w.isMinimized);
       if (lp) {
@@ -60,7 +60,16 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
       }
     }
 
-    const existingWindow = windows.find(w => w.appId === appId && !w.isMinimized);
+    if (options?.messageId) {
+      const sameMessage = windows.find(w => w.appId === appId && w.messageId === options.messageId);
+      if (sameMessage) {
+        setWindows(prev => prev.map(w => (w.id === sameMessage.id ? { ...w, isMinimized: false } : w)));
+        focusWindow(sameMessage.id);
+        return;
+      }
+    }
+
+    const existingWindow = options?.newWindow ? undefined : windows.find(w => w.appId === appId && !w.messageId && !w.isMinimized);
     if (existingWindow) {
       // Launchpad: clicking dock icon again closes it
       if (appId === 'launchpad') {
@@ -72,7 +81,7 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
       return;
     }
 
-    const minimizedWindow = windows.find(w => w.appId === appId && w.isMinimized);
+    const minimizedWindow = options?.newWindow ? undefined : windows.find(w => w.appId === appId && !w.messageId && w.isMinimized);
     if (minimizedWindow) {
       setWindows(prev =>
         prev.map(w => (w.id === minimizedWindow.id ? { ...w, isMinimized: false } : w))
@@ -92,8 +101,8 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
     const availableWidth = vw - 40;
 
     // Cap the default size so windows don't overflow the usable area
-    const requestedW = app.defaultSize?.width || 800;
-    const requestedH = app.defaultSize?.height || 600;
+    const requestedW = options?.size?.width ?? app.defaultSize?.width ?? 800;
+    const requestedH = options?.size?.height ?? app.defaultSize?.height ?? 600;
     const width = Math.min(requestedW, Math.max(420, availableWidth - 40));
     const height = Math.min(requestedH, Math.max(360, availableHeight - 20));
 
@@ -104,8 +113,9 @@ export const MacOSProvider = ({ children, apps }: { children: ReactNode; apps: A
     const y = Math.max(menuBarHeight + 10, Math.min(vh - dockHeight - height - 10, menuBarHeight + (availableHeight - height) / 2 + jitterY));
 
     const newWindow: WindowState = {
-      id: `${appId}-${Date.now()}`,
+      id: `${appId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       appId,
+      messageId: options?.messageId,
       position: { x, y },
       size: { width, height },
       isMinimized: false,

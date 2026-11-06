@@ -16,7 +16,7 @@ export interface AppConfig {
   id: string;
   name: string;
   icon: string;
-  component: React.ComponentType;
+  component: React.ComponentType<{ window?: WindowState }>;
   defaultSize?: { width: number; height: number };
   minSize?: { width: number; height: number };
   maxSize?: { width: number; height: number };
@@ -33,9 +33,17 @@ export interface AppConfig {
   chromeColor?: string;
 }
 
+export interface OpenAppOptions {
+  /** Open an additional window instead of toggling the app's main window. */
+  newWindow?: boolean;
+  messageId?: string;
+  size?: { width: number; height: number };
+}
+
 export interface WindowState {
   id: string;
   appId: string;
+  messageId?: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
   isMinimized: boolean;

@@ -121,7 +121,7 @@ newWidth = Math.min(newWidth, usableWidth - resizeStart.posX);
         onMouseDown={() => focusWindow(window.id)}
         onKeyDown={(e) => { if (e.key === 'Escape') closeWindow(window.id); }}
       >
-        <AppComponent />
+        <AppComponent window={window} />
       </div>
     );
   }
@@ -255,7 +255,7 @@ newWidth = Math.min(newWidth, usableWidth - resizeStart.posX);
         className={integrated ? 'h-full overflow-auto' : 'h-[calc(100%-2.5rem)] overflow-auto backdrop-blur-sm'}
         style={{ background: 'hsl(var(--macos-window-bg))' }}
       >
-        <AppComponent />
+        <AppComponent window={window} />
       </div>
 
       {/* Resize Handles - All Edges */}

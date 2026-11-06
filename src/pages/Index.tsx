@@ -11,6 +11,7 @@ import { SettingsApp } from '@/components/apps/SettingsApp';
 import { FinderApp } from '@/components/apps/FinderApp';
 import { LaunchpadApp } from '@/components/apps/LaunchpadApp';
 import { NotesApp } from '@/components/apps/NotesApp';
+import { MailApp } from '@/components/apps/MailApp';
 import { SafariApp } from '@/components/apps/SafariApp';
 import { AppStoreApp } from '@/components/apps/AppStoreApp';
 import { CalendarApp } from '@/components/apps/CalendarApp';
@@ -22,6 +23,7 @@ const apps: AppConfig[] = [
   { id: 'finder', name: 'Finder', icon: '📁', component: FinderApp, defaultSize: { width: 930, height: 600 }, chromeMode: 'integrated' },
   { id: 'launchpad', name: 'Launchpad', icon: '🚀', component: LaunchpadApp, defaultSize: { width: 1000, height: 700 } },
   { id: 'notes', name: 'Notes', icon: '📒', component: NotesApp, defaultSize: { width: 1100, height: 780 }, chromeMode: 'integrated' },
+  { id: 'mail', name: 'Mail', icon: '✉️', component: MailApp, defaultSize: { width: 1000, height: 680 }, chromeMode: 'integrated' },
   { id: 'maps', name: 'Maps', icon: '🗺️', component: MapsApp, defaultSize: { width: 1150, height: 790 }, chromeMode: 'integrated' },
   { id: 'calendar', name: 'Calendar', icon: '📅', component: CalendarApp, defaultSize: { width: 1300, height: 900 }, chromeMode: 'integrated' },
   { id: 'safari', name: 'Safari', icon: '🧭', component: SafariApp, defaultSize: { width: 1580, height: 1070 }, chromeMode: 'integrated' },
