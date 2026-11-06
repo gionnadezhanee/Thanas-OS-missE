@@ -1,22 +1,32 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMacOS } from "@/contexts/MacOSContext";
+import { getNewYorkClock } from "@/lib/newYorkTime";
+
+const MONTH_NAMES = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
 export const CalendarWidget = () => {
   const { openApp } = useMacOS();
-  const istOffset = 5.5 * 60 * 60 * 1000;
-  const utc = Date.now() + new Date().getTimezoneOffset() * 60000;
-  const istNow = new Date(utc + istOffset);
+  const [today, setToday] = useState(() => getNewYorkClock());
 
-  const todayDate = istNow.getDate();
-  const todayMonth = istNow.getMonth();
-  const todayYear = istNow.getFullYear();
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const next = getNewYorkClock();
+      setToday(prev => (prev.year === next.year && prev.month === next.month && prev.day === next.day ? prev : next));
+    }, 30000);
+    return () => window.clearInterval(id);
+  }, []);
 
-  const monthName = istNow.toLocaleString("en-US", { month: "long" }).toUpperCase();
+  const todayDate = today.day;
+  const todayMonth = today.month;
+  const todayYear = today.year;
+
+  const monthName = MONTH_NAMES[todayMonth];
   const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
 
   const calendarDays = useMemo(() => {
-    const firstDay = new Date(todayYear, todayMonth, 1).getDay();
-    const daysInMonth = new Date(todayYear, todayMonth + 1, 0).getDate();
+    // UTC arithmetic keeps the month grid independent of the browser timezone.
+    const firstDay = new Date(Date.UTC(todayYear, todayMonth, 1)).getUTCDay();
+    const daysInMonth = new Date(Date.UTC(todayYear, todayMonth + 1, 0)).getUTCDate();
     const days: (number | null)[] = [];
     for (let i = 0; i < firstDay; i++) days.push(null);
     for (let i = 1; i <= daysInMonth; i++) days.push(i);

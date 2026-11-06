@@ -4,10 +4,9 @@ import { Window } from './Window';
 import { Dock } from './Dock';
 import { MenuBar } from './MenuBar';
 import { Spotlight } from './Spotlight';
-import { StatsWidget } from '@/components/widgets/StatsWidget';
-import { UtilityClockWidget } from '@/components/widgets/UtilityClockWidget';
 import { CalendarWidget } from '@/components/widgets/CalendarWidget';
 import { BengaluruWeatherWidget } from '@/components/widgets/BengaluruWeatherWidget';
+import { PinterestWidget } from '@/components/widgets/PinterestWidget';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useImagePreloader } from '@/hooks/useImagePreloader';
 import wallpaper1 from '@/assets/wallpaper-1.jpg';
@@ -144,13 +143,12 @@ export const Desktop = () => {
       </div>
 
       <div className="pt-7 h-full p-8">
-        <div className="absolute top-12 left-6 space-y-3">
+        <div className="absolute top-12 bottom-[100px] left-6 max-w-[calc(100%-3rem)] space-y-3 overflow-y-auto overflow-x-hidden">
           <BengaluruWeatherWidget note="Currently accepting applications for a seasonal boyfriend." />
-          <div className="flex gap-3 items-start">
-            <UtilityClockWidget size={172} />
+          <div className="flex flex-wrap gap-3 items-start">
             <CalendarWidget />
+            <PinterestWidget />
           </div>
-          <StatsWidget />
         </div>
 
         {windows.map(window => (

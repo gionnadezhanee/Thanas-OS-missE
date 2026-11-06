@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { getNewYorkClock } from '@/lib/newYorkTime';
 import './utility-clock.css';
 
 /**
@@ -60,13 +61,18 @@ export const UtilityClockWidget = ({ size = 200 }: { size?: number }) => {
     }
 
     let raf = 0;
+    let cachedEpochSecond = -1;
+    let cachedSecondOfDay = 0;
     const animate = () => {
-      const now = new Date();
-      const t =
-        now.getHours() * 3600 +
-        now.getMinutes() * 60 +
-        now.getSeconds() +
-        now.getMilliseconds() / 1000;
+      const epochMs = Date.now();
+      const epochSecond = Math.floor(epochMs / 1000);
+      // Re-derive New York time once a second so DST changes are picked up without per-frame Intl calls.
+      if (epochSecond !== cachedEpochSecond) {
+        const ny = getNewYorkClock(new Date(epochMs));
+        cachedEpochSecond = epochSecond;
+        cachedSecondOfDay = ny.hour * 3600 + ny.minute * 60 + ny.second;
+      }
+      const t = cachedSecondOfDay + (epochMs % 1000) / 1000;
       if (secRef.current) rotate(secRef.current, t);
       if (minRef.current) rotate(minRef.current, t / 60);
       if (hourRef.current) rotate(hourRef.current, t / 60 / 12);
