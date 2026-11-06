@@ -1,150 +1,300 @@
-import type { ReactNode } from 'react';
-import {
-  Phone,
-  MessageSquare,
-  Mail,
-} from 'lucide-react';
-import contactImg from '@/assets/wallpaper-2.jpg';
-import newProfile from '@/assets/newprofile.png';
+import { useMemo, useState, type ReactNode } from 'react';
+import { ExternalLink, Globe, Mail, Phone, Search, User } from 'lucide-react';
+import { CONTACTS, type ContactRecord } from '@/lib/contacts';
 
-// iOS-26 liquid-glass contact card updated
+const PINNED_CONTACT_ID = 'miss-editaire';
+const CONTACT_LETTERS = Array.from({ length: 26 }, (_, index) => String.fromCharCode(65 + index));
+
 export const ContactApp = () => {
+  const [query, setQuery] = useState('');
+  const [activeView, setActiveView] = useState<'contact' | 'directory'>('contact');
+  const [selectedContactId, setSelectedContactId] = useState(PINNED_CONTACT_ID);
+  const publishedContacts = useMemo(
+    () => CONTACTS.filter(contact => contact.publicationStatus === 'published'),
+    []
+  );
+  const pinnedContact = publishedContacts.find(contact => contact.id === PINNED_CONTACT_ID);
+  const allContacts = useMemo(
+    () => publishedContacts
+      .filter(contact => contact.id !== PINNED_CONTACT_ID)
+      .slice()
+      .sort((first, second) => first.name.localeCompare(second.name)),
+    [publishedContacts]
+  );
+  const normalizedQuery = query.trim().toLowerCase();
+  const directoryContacts = useMemo(
+    () => publishedContacts
+      .filter(contact => contact.name.toLowerCase().includes(normalizedQuery))
+      .slice()
+      .sort((first, second) => first.name.localeCompare(second.name)),
+    [publishedContacts, normalizedQuery]
+  );
+  const directorySections = useMemo(() => {
+    const contactsByLetter = new Map(CONTACT_LETTERS.map(letter => [letter, [] as ContactRecord[]]));
+    directoryContacts.forEach(contact => {
+      const firstLetter = contact.name.trim().charAt(0).toUpperCase();
+      contactsByLetter.get(firstLetter)?.push(contact);
+    });
+    return CONTACT_LETTERS.map(letter => ({
+      letter,
+      contacts: contactsByLetter.get(letter) ?? [],
+    }));
+  }, [directoryContacts]);
+  const showPinnedContact = !!pinnedContact && pinnedContact.name.toLowerCase().includes(normalizedQuery);
+  const filteredContacts = useMemo(() => {
+    return allContacts.filter(contact => contact.name.toLowerCase().includes(normalizedQuery));
+  }, [allContacts, normalizedQuery]);
+  const selectedContact = publishedContacts.find(contact => contact.id === selectedContactId);
+
+  const showAllContacts = () => {
+    setQuery('');
+    setSelectedContactId(pinnedContact?.id ?? '');
+    setActiveView('directory');
+  };
+
+  const selectContact = (contactId: string) => {
+    setSelectedContactId(contactId);
+    setActiveView('contact');
+  };
+
+  const renderContact = (contact: ContactRecord) => (
+    <button
+      key={contact.id}
+      type="button"
+      onClick={() => selectContact(contact.id)}
+      aria-current={selectedContactId === contact.id ? 'true' : undefined}
+      className={`mb-0.5 w-full truncate rounded-lg px-3 py-2 text-left text-[13px] transition-colors ${
+        selectedContactId === contact.id ? 'bg-white/15 text-white' : 'text-white/80 hover:bg-white/10'
+      }`}
+    >
+      {contact.name}
+    </button>
+  );
+
   return (
     <div
       className="relative h-full w-full overflow-hidden text-white"
       style={{
-        backgroundImage: `url(${contactImg})`,
+        backgroundImage: 'url(/images/contacts-pink-halftone.jpeg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       }}
     >
-      {/* Blur overlay */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backdropFilter: 'blur(40px) saturate(140%)',
-          WebkitBackdropFilter: 'blur(40px) saturate(140%)',
-          background:
-            'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.28) 35%, rgba(0,0,0,0.60) 100%)',
-        }}
-      />
+      <div className="relative z-10 flex h-full min-h-0 flex-col sm:flex-row">
+        <aside
+          className="flex max-h-56 w-full shrink-0 flex-col border-b border-white/25 sm:max-h-none sm:w-56 sm:border-b-0 sm:border-r"
+          style={{
+            background: 'rgba(28, 20, 42, 0.14)',
+            backdropFilter: 'blur(8px) saturate(125%)',
+            WebkitBackdropFilter: 'blur(8px) saturate(125%)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), inset -1px 0 0 rgba(255,255,255,0.08)',
+          }}
+        >
+          <div className="px-3 pb-3 pt-10">
+            <div className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-wider text-white/55">Contacts</div>
+            <button
+              type="button"
+              onClick={showAllContacts}
+              aria-current={activeView === 'directory' ? 'page' : undefined}
+              className={`w-full rounded-lg px-3 py-2 text-left text-[13px] font-medium text-white transition-colors ${
+                activeView === 'directory' ? 'bg-white/20 ring-1 ring-white/25' : 'bg-white/15 hover:bg-white/20'
+              }`}
+            >
+              All Contacts
+            </button>
+          </div>
 
-      <div className="relative z-10 h-full w-full overflow-y-auto no-scrollbar pb-8">
-        {/* Top profile */}
-        <div className="flex flex-col items-center pt-16 px-4">
-          <div
-            className="rounded-full overflow-hidden ring-1 ring-white/20 shadow-2xl"
-            style={{
-              width: 132,
-              height: 132,
-              background: 'rgba(255,255,255,0.08)',
-              backdropFilter: 'blur(30px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-            }}
-          >
-            <img
-              src={newProfile}
-              alt="Thanas R"
-              className="w-full h-full object-cover"
+          <div className="mx-3 mb-2 flex items-center gap-2 rounded-md border border-white/10 bg-white/10 px-2.5 py-1.5">
+            <Search className="h-3.5 w-3.5 shrink-0 text-white/55" aria-hidden="true" />
+            <input
+              type="search"
+              aria-label="Search contacts by name"
+              placeholder="Search"
+              value={query}
+              onChange={event => setQuery(event.target.value)}
+              className="min-w-0 flex-1 bg-transparent text-[12px] text-white outline-none placeholder:text-white/45"
             />
           </div>
 
-          <h1 className="mt-4 text-[44px] font-bold tracking-tight leading-none drop-shadow-lg text-center">
-            Thanas R
-          </h1>
-        </div>
+          <div className="min-h-0 flex-1 overflow-auto px-2 pb-3">
+            {showPinnedContact && (
+              <section className="mb-3">
+                <h2 className="px-3 py-1 text-[10px] font-semibold tracking-wider text-white/65">PINNED</h2>
+                {renderContact(pinnedContact)}
+              </section>
+            )}
+            <section>
+              <h2 className="px-3 py-1 text-[10px] font-semibold tracking-wider text-white/65">ALL CONTACTS</h2>
+              {filteredContacts.length > 0 ? filteredContacts.map(renderContact) : (
+                <div className="px-3 py-3 text-[12px] text-white/55">
+                  {normalizedQuery ? 'No contacts found' : 'No other contacts yet'}
+                </div>
+              )}
+            </section>
+          </div>
+        </aside>
 
-        {/* Action circles */}
-        <div className="flex justify-center gap-4 mt-6 px-4">
-          <GlassCircle
-            href="sms:+919141944808"
-            icon={<MessageSquare className="w-6 h-6" strokeWidth={2.4} />}
-          />
-          <GlassCircle
-            href="tel:+919141944808"
-            icon={<Phone className="w-6 h-6" strokeWidth={2.4} />}
-          />
-          <GlassCircle
-            href="https://discord.com/users/677174403859087378"
-            icon={<DiscordIcon className="w-6 h-6" />}
-          />
-          <GlassCircle
-            href="mailto:thanas5.rd@gmail.com"
-            icon={<Mail className="w-6 h-6" strokeWidth={2.4} />}
-          />
-        </div>
-
-        {/* Info groups */}
-        <div className="mt-6 mx-4">
-          <GlassPanel className="divide-y divide-white/10">
-            <Field
-              label="mobile"
-              value="+91 91419 44808"
-              href="tel:+919141944808"
-              right={<Phone className="w-5 h-5 text-yellow-400" />}
-            />
-            <Field
-              label="email"
-              value="thanas5.rd@gmail.com"
-              href="mailto:thanas5.rd@gmail.com"
-              right={<Mail className="w-5 h-5 text-yellow-400" />}
-            />
-            <Field
-              label="discord"
-              value="DarkSpacePirate"
-              href="https://discord.com/users/677174403859087378"
-              right={<DiscordIcon className="w-5 h-5 text-yellow-400" />}
-            />
-          </GlassPanel>
-        </div>
-
-        {/* Social links */}
-        <div className="mt-4 mx-4">
-          <GlassPanel className="divide-y divide-white/10">
-            <Field
-              label="linkedin"
-              value="linkedin.com/in/thanasr"
-              href="https://www.linkedin.com/in/thanasr/"
-              right={<LinkedInIcon className="w-5 h-5 text-yellow-400" />}
-            />
-            <Field
-              label="github"
-              value="github.com/Thanas-R"
-              href="https://github.com/Thanas-R"
-              right={<GitHubIcon className="w-5 h-5 text-yellow-400" />}
-            />
-            <Field
-              label="portfolio"
-              value="thanas.dev"
-              href="https://thanas.dev"
-              right={<PortfolioIcon className="w-5 h-5 text-yellow-400" />}
-            />
-          </GlassPanel>
-        </div>
+        <main className="min-h-0 min-w-0 flex-1 overflow-y-auto no-scrollbar pb-8">
+          {activeView === 'directory' ? (
+            <div className="relative mx-auto w-full max-w-4xl px-6 pb-8 pt-8 sm:px-10">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-2 top-5 bottom-8 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(145deg, rgba(255,177,209,0.2), rgba(126,28,79,0.16))',
+                  backdropFilter: 'blur(2px) saturate(115%)',
+                  WebkitBackdropFilter: 'blur(2px) saturate(115%)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(58,8,35,0.08)',
+                }}
+              />
+              <div className="relative z-10">
+                <h1 className="mb-5 text-[22px] font-semibold text-white drop-shadow-sm">All Contacts</h1>
+                <div className="grid grid-cols-1 gap-y-1">
+                  {directorySections.map(({ letter, contacts }) => (
+                    <section key={letter} className="min-w-0">
+                      <h2
+                        className="border-b border-white/25 py-1 text-[11px] font-semibold tracking-wider text-white"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}
+                      >
+                        {letter}
+                      </h2>
+                      <div className="min-h-8 py-1">
+                        {contacts.map(contact => (
+                          <button
+                            key={contact.id}
+                            type="button"
+                            onClick={() => selectContact(contact.id)}
+                            className="w-full truncate rounded-md px-3 py-2 text-left text-[13px] text-white transition-colors hover:bg-white/15"
+                            style={{ textShadow: '0 1px 2px rgba(0,0,0,0.55)' }}
+                          >
+                            {contact.name}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : selectedContact ? <ContactCard contact={selectedContact} /> : (
+            <div className="flex h-full items-center justify-center px-6 text-center text-sm text-white/65">
+              No published contacts
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
 };
 
-const GlassCircle = ({ icon, href }: { icon: ReactNode; href?: string }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noreferrer"
-    className="w-16 h-16 rounded-full flex items-center justify-center transition-transform active:scale-95"
-    style={{
-      background: 'rgba(255,255,255,0.10)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-      border: '1px solid rgba(255,255,255,0.18)',
-      boxShadow:
-        'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.25)',
-    }}
-  >
-    {icon}
-  </a>
-);
+const ContactCard = ({ contact }: { contact: ContactRecord }) => {
+  const actions = [
+    ...(contact.phone ? [{ label: 'Call', href: `tel:${contact.phone}`, icon: <Phone className="h-6 w-6" strokeWidth={2.4} /> }] : []),
+    ...(contact.email ? [{ label: 'Email', href: `mailto:${contact.email}`, icon: <Mail className="h-6 w-6" strokeWidth={2.4} /> }] : []),
+    ...(contact.website ? [{ label: contact.website.label, href: contact.website.url, icon: <Globe className="h-6 w-6" strokeWidth={2.2} /> }] : []),
+    ...(contact.socialProfiles ?? []).map(profile => ({
+      label: profile.label,
+      href: profile.url,
+      icon: <ExternalLink className="h-6 w-6" strokeWidth={2.2} />,
+    })),
+  ];
+
+  return (
+    <div className="mx-auto w-full max-w-3xl pb-8">
+      <div className="flex flex-col items-center px-4 pt-10 sm:pt-16">
+        <div
+          className="h-[132px] w-[132px] overflow-hidden rounded-full ring-1 ring-white/20 shadow-2xl"
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            backdropFilter: 'blur(30px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+          }}
+        >
+          {contact.photoUrl ? (
+            <img src={contact.photoUrl} alt={contact.name} className="h-full w-full object-cover" />
+          ) : (
+            <div role="img" aria-label={`${contact.name} profile photo placeholder`} className="flex h-full w-full items-center justify-center text-white/70">
+              <User className="h-14 w-14" aria-hidden="true" />
+            </div>
+          )}
+        </div>
+
+        <h1 className="mt-4 text-center text-[34px] font-bold leading-tight drop-shadow-lg sm:text-[44px]">
+          {contact.name}
+        </h1>
+        {(contact.role || contact.organization) && (
+          <div className="mt-1 text-center text-[14px] text-white/80">
+            {[contact.role, contact.organization].filter(Boolean).join(' · ')}
+          </div>
+        )}
+      </div>
+
+      {actions.length > 0 && (
+        <div className="mt-6 flex flex-wrap justify-center gap-4 px-4">
+          {actions.map(action => (
+            <GlassCircle key={`${action.label}:${action.href}`} href={action.href} label={action.label}>
+              {action.icon}
+            </GlassCircle>
+          ))}
+        </div>
+      )}
+
+      {(contact.email || contact.phone || contact.website) && (
+        <div className="mx-4 mt-6">
+          <GlassPanel className="divide-y divide-white/10">
+            {contact.phone && <Field label="phone" value={contact.phone} href={`tel:${contact.phone}`} right={<Phone className="h-5 w-5 text-yellow-400" />} />}
+            {contact.email && <Field label="email" value={contact.email} href={`mailto:${contact.email}`} right={<Mail className="h-5 w-5 text-yellow-400" />} />}
+            {contact.website && <Field label={contact.website.label.toLowerCase()} value={contact.website.label} href={contact.website.url} right={<Globe className="h-5 w-5 text-yellow-400" />} />}
+          </GlassPanel>
+        </div>
+      )}
+
+      {contact.socialProfiles && contact.socialProfiles.length > 0 && (
+        <div className="mx-4 mt-4">
+          <GlassPanel className="divide-y divide-white/10">
+            {contact.socialProfiles.map(profile => (
+              <Field key={profile.url} label={profile.label.toLowerCase()} value={profile.label} href={profile.url} right={<ExternalLink className="h-5 w-5 text-yellow-400" />} />
+            ))}
+          </GlassPanel>
+        </div>
+      )}
+
+      {contact.collaborationNotes && (
+        <div className="mx-4 mt-4">
+          <GlassPanel className="p-4">
+            <div className="mb-1 text-[13px] font-medium text-yellow-400">Collaboration</div>
+            <p className="text-[14px] leading-relaxed">{contact.collaborationNotes}</p>
+          </GlassPanel>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const GlassCircle = ({ children, href, label }: { children: ReactNode; href: string; label: string }) => {
+  const external = href.startsWith('http');
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      title={label}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+      className="flex h-16 w-16 items-center justify-center rounded-full transition-transform active:scale-95"
+      style={{
+        background: 'rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(30px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(30px) saturate(180%)',
+        border: '1px solid rgba(255,255,255,0.18)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 0 rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.25)',
+      }}
+    >
+      {children}
+    </a>
+  );
+};
 
 const GlassPanel = ({
   children,
@@ -156,33 +306,25 @@ const GlassPanel = ({
   <div
     className={`rounded-2xl ${className}`}
     style={{
-      background: 'rgba(255,255,255,0.07)',
-      backdropFilter: 'blur(30px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(30px) saturate(180%)',
-      border: '1px solid rgba(255,255,255,0.10)',
-      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.1)',
+      backdropFilter: 'blur(12px) saturate(125%)',
+      WebkitBackdropFilter: 'blur(12px) saturate(125%)',
+      border: '1px solid rgba(255,255,255,0.18)',
+      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.2), 0 8px 24px rgba(0,0,0,0.12)',
     }}
   >
     {children}
   </div>
 );
 
-const Field = ({
-  label,
-  value,
-  right,
-  href,
-}: {
-  label: string;
-  value: string;
-  right?: ReactNode;
-  href?: string;
-}) => (
+const Field = ({ label, value, right, href }: { label: string; value: string; right?: ReactNode; href: string }) => {
+  const external = href.startsWith('http');
+  return (
   <a
     href={href}
-    target={href?.startsWith('http') ? '_blank' : undefined}
-    rel="noreferrer"
-    className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+    target={external ? '_blank' : undefined}
+    rel={external ? 'noreferrer' : undefined}
+    className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/5"
   >
     <div className="flex-1 min-w-0">
       <div className="text-[13px] text-yellow-400 font-medium leading-tight mb-0.5">
@@ -192,36 +334,5 @@ const Field = ({
     </div>
     {right}
   </a>
-);
-
-const DiscordIcon = ({ className = '' }: { className?: string }) => (
-  <svg
-    viewBox="0 0 24 24"
-    className={className}
-    fill="currentColor"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M14.82 4.26a10.14 10.14 0 0 0-.53 1.1 14.66 14.66 0 0 0-4.58 0 10.14 10.14 0 0 0-.53-1.1 16 16 0 0 0-4.13 1.3 17.33 17.33 0 0 0-3 11.59 16.6 16.6 0 0 0 5.07 2.59A12.89 12.89 0 0 0 8.23 18a9.65 9.65 0 0 1-1.71-.83 3.39 3.39 0 0 0 .42-.33 11.66 11.66 0 0 0 10.12 0q.21.18.42.33a10.84 10.84 0 0 1-1.71.84 12.41 12.41 0 0 0 1.08 1.78 16.44 16.44 0 0 0 5.06-2.59 17.22 17.22 0 0 0-3-11.59 16.09 16.09 0 0 0-4.09-1.35zM8.68 14.81a1.94 1.94 0 0 1-1.8-2 1.93 1.93 0 0 1 1.8-2 1.93 1.93 0 0 1 1.8 2 1.93 1.93 0 0 1-1.8 2zm6.64 0a1.94 1.94 0 0 1-1.8-2 1.93 1.93 0 0 1 1.8-2 1.92 1.92 0 0 1 1.8 2 1.92 1.92 0 0 1-1.8 2z" />
-  </svg>
-);
-
-const LinkedInIcon = ({ className = '' }: { className?: string }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className={className} fill="currentColor">
-    <circle cx="4.983" cy="5.009" r="2.188" />
-    <path d="M9.237 8.855v12.139h3.769v-6.003c0-1.584.298-3.118 2.262-3.118 1.937 0 1.961 1.811 1.961 3.218v5.904H21v-6.657c0-3.27-.704-5.783-4.526-5.783-1.835 0-3.065 1.007-3.568 1.96h-.051v-1.66H9.237zm-6.142 0H6.87v12.139H3.095z" />
-  </svg>
-);
-
-const GitHubIcon = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="currentColor">
-    <path d="M12 .5C5.648.5.5 5.648.5 12a11.5 11.5 0 0 0 7.86 10.92c.575.106.785-.25.785-.556 0-.274-.01-1-.015-1.962-3.197.695-3.872-1.54-3.872-1.54-.523-1.328-1.277-1.682-1.277-1.682-1.045-.714.08-.7.08-.7 1.155.082 1.763 1.186 1.763 1.186 1.026 1.758 2.69 1.25 3.345.956.104-.743.402-1.25.732-1.538-2.552-.29-5.236-1.276-5.236-5.682 0-1.255.45-2.282 1.186-3.086-.12-.29-.514-1.46.112-3.043 0 0 .967-.31 3.17 1.178a10.99 10.99 0 0 1 5.77 0c2.2-1.488 3.165-1.178 3.165-1.178.628 1.583.234 2.753.115 3.043.74.804 1.184 1.831 1.184 3.086 0 4.418-2.688 5.388-5.25 5.673.413.356.78 1.058.78 2.133 0 1.54-.014 2.78-.014 3.16 0 .31.207.668.79.555A11.502 11.502 0 0 0 23.5 12C23.5 5.648 18.352.5 12 .5z"/>
-  </svg>
-);
-
-const PortfolioIcon = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M10 14L21 3"/>
-    <path d="M15 3h6v6"/>
-    <path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/>
-  </svg>
-);
+  );
+};
