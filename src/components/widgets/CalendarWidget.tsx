@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMacOS } from "@/contexts/MacOSContext";
 import { getNewYorkClock } from "@/lib/newYorkTime";
+import { widgetGlass } from './widgetGlass';
 
 const MONTH_NAMES = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
 
@@ -38,10 +39,9 @@ export const CalendarWidget = () => {
       onClick={() => openApp('calendar')}
       className="rounded-3xl p-3 select-none shadow-xl text-left hover:brightness-110 transition"
       style={{
+        ...widgetGlass,
         width: 172,
         height: 172,
-        background: '#18181A',
-        border: '1px solid rgba(255,255,255,0.06)',
       }}
     >
       <div className="text-[11.75px] font-semibold tracking-wider mb-1 pl-1.5" style={{ color: '#FF453A' }}>

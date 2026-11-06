@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
+import { widgetGlass } from './widgetGlass';
 
 const PROFILE_URL = 'https://www.pinterest.com/misseditaire/';
 const SCRIPT_URL = 'https://assets.pinterest.com/js/pinit.js';
@@ -71,21 +72,20 @@ export const PinterestWidget = () => {
   }, []);
 
   return (
-    <section className="flex h-[172px] w-[172px] shrink-0 flex-col overflow-hidden rounded-3xl liquid-glass-card text-white">
-      <div className="flex shrink-0 items-center justify-between gap-2 px-3 py-2">
-        <h2 className="text-[12px] font-semibold">Pinterest</h2>
-        <a href={PROFILE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[11px] text-white/85 hover:text-white" title="Open Miss Editaire's Pinterest profile">
-          Profile <ExternalLink className="h-3 w-3" aria-hidden="true" />
-        </a>
-      </div>
-      <div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pb-2">
+    <section aria-label="Pinterest Moodboard" className="flex h-[172px] w-[172px] shrink-0 flex-col overflow-hidden rounded-3xl text-white" style={widgetGlass}>
+      <div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2">
         {status !== 'ready' && (
           <div className="absolute inset-0 flex items-center justify-center px-4 text-center text-xs text-white/75" role="status">
-            {status === 'loading' ? 'Loading moodboard...' : 'Moodboard unavailable. Open the profile above.'}
+            {status === 'loading' ? 'Loading moodboard...' : 'Moodboard unavailable.'}
           </div>
         )}
-        <div ref={embedRef} className={status === 'ready' ? '' : 'invisible'} />
+        <div className="flex min-h-full justify-center">
+          <div ref={embedRef} className={`m-auto ${status === 'ready' ? '' : 'invisible'}`} />
+        </div>
       </div>
+      <a href={PROFILE_URL} target="_blank" rel="noopener noreferrer" className="flex shrink-0 items-center justify-center gap-1 pb-1.5 pt-1 text-[10px] text-white/90 hover:text-white" title="Open Miss Editaire's Pinterest profile">
+        Open profile <ExternalLink className="h-3 w-3" aria-hidden="true" />
+      </a>
     </section>
   );
 };

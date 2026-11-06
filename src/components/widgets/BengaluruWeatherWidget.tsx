@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { widgetGlass } from './widgetGlass';
 import { IoCloudySharp, IoPartlySunny, IoSunny, IoMoon, IoRainy, IoThunderstorm } from 'react-icons/io5';
 import {
   BsFillMoonStarsFill,
@@ -261,8 +262,8 @@ export const BengaluruWeatherWidget = ({
 
   return (
     <div
-      className={cn('rounded-3xl overflow-hidden liquid-glass-card text-white', className)}
-      style={{ width: 356, fontFamily: "'Inter', -apple-system, sans-serif" }}
+      className={cn('rounded-3xl overflow-hidden text-white', className)}
+      style={{ ...widgetGlass, width: 356, fontFamily: "'Inter', -apple-system, sans-serif" }}
     >
       <div className="px-4 pt-3 pb-2.5">
         <div className="flex items-start justify-between">
