@@ -10,6 +10,7 @@ import contactIcon from '@/assets/contact-icon.png';
 import settingsIcon from '@/assets/settings-icon.png';
 import safariIcon from '@/assets/safari-icon.png';
 import notesIcon from '@/assets/notes-icon.png';
+import mailIcon from '@/assets/mail-icon.svg';
 import appstoreIcon from '@/assets/appstore-icon.png';
 import launchpadIcon from '@/assets/launchpad-icon.png';
 import calendarIcon from '@/assets/calendar-icon-new.png';
@@ -24,6 +25,7 @@ export const APP_ICONS: Record<string, string> = {
   settings: settingsIcon,
   safari: safariIcon,
   notes: notesIcon,
+  mail: mailIcon,
   appstore: appstoreIcon,
   launchpad: launchpadIcon,
   calendar: calendarIcon,
