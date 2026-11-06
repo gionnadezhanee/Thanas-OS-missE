@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus, Calendar as CalIcon, Clock, Grid3x3, List, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalIcon, Clock, Grid3x3, List, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMacOS } from '@/contexts/MacOSContext';
+import { PUBLISHED_CALENDAR_EVENTS } from '@/lib/calendarEvents';
 
 interface CalEvent {
   id: string;
@@ -9,6 +10,7 @@ interface CalEvent {
   description?: string;
   startTime: Date;
   endTime: Date;
+  allDay?: boolean;
   color: 'red' | 'gray' | 'green' | 'blue' | 'orange';
 }
 
@@ -176,21 +178,15 @@ const evChip = (hex: string, dark: boolean) => ({
 });
 
 
-const seedEvents = (): CalEvent[] => {
-  const t = new Date();
-  return [
-    {
-      id: 'today-1', title: 'Design review', color: 'red',
-      startTime: new Date(t.getFullYear(), t.getMonth(), t.getDate(), 10, 0),
-      endTime: new Date(t.getFullYear(), t.getMonth(), t.getDate(), 11, 0),
-    },
-    {
-      id: 'today-2', title: 'Gym', color: 'gray',
-      startTime: new Date(t.getFullYear(), t.getMonth(), t.getDate(), 18, 0),
-      endTime: new Date(t.getFullYear(), t.getMonth(), t.getDate(), 19, 0),
-    },
-  ];
-};
+// Built from y/m/d parts so an all-day event stays on its date in every timezone.
+const toCalEvents = (): CalEvent[] => PUBLISHED_CALENDAR_EVENTS.map((e) => {
+  const [y, m, d] = e.date.split('-').map(Number);
+  return {
+    id: e.id, title: e.title, description: e.description, color: e.color, allDay: e.allDay,
+    startTime: new Date(y, m - 1, d),
+    endTime: new Date(y, m - 1, d + 1),
+  };
+});
 
 type View = 'month' | 'week' | 'day' | 'list';
 
@@ -199,14 +195,10 @@ export const CalendarApp = () => {
   const dark = settings.theme === 'dark';
   const tone = getTone(dark);
 
-  const [events, setEvents] = useState<CalEvent[]>(() => seedEvents());
+  const events = useMemo(toCalEvents, []);
   const [current, setCurrent] = useState(new Date());
   const [view, setView] = useState<View>('month');
   const [selected, setSelected] = useState<CalEvent | null>(null);
-  const [creating, setCreating] = useState(false);
-  const [draft, setDraft] = useState<{ title: string; color: CalEvent['color']; date: string; startH: number; startM: number; endH: number; endM: number }>(
-    { title: '', color: 'red', date: dkey(new Date()), startH: 9, startM: 0, endH: 10, endM: 0 }
-  );
 
   const today = new Date();
 
@@ -231,21 +223,6 @@ export const CalendarApp = () => {
     return 'All Events';
   }, [view, current]);
 
-  const openCreate = (date: Date, hour?: number) => {
-    const h = hour ?? 9;
-    setDraft({ title: '', color: 'red', date: dkey(date), startH: h, startM: 0, endH: (h + 1) % 24, endM: 0 });
-    setCreating(true);
-  };
-
-  const submitCreate = () => {
-    if (!draft.title.trim()) return;
-    const [y, m, d] = draft.date.split('-').map(Number);
-    const start = new Date(y, m - 1, d, draft.startH, draft.startM);
-    const end = new Date(y, m - 1, d, draft.endH, draft.endM);
-    setEvents((p) => [...p, { id: Math.random().toString(36).slice(2), title: draft.title.trim(), color: draft.color, startTime: start, endTime: end }]);
-    setCreating(false);
-  };
-
   return (
     <div className="h-full w-full flex flex-col select-none overflow-hidden"
       style={{ background: tone.page, color: tone.text, fontFamily: '-apple-system, "SF Pro Text", Roboto, sans-serif' }}>
@@ -265,13 +242,6 @@ export const CalendarApp = () => {
 
         <div className="flex items-center gap-6 ml-4">
           <Segmented tone={tone} value={view} onChange={setView} />
-          <button
-            onClick={() => openCreate(current)}
-            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-[12.5px] font-medium text-white shadow-sm"
-            style={{ background: 'linear-gradient(180deg,#ff5366,#fa2d48)' }}
-          >
-            <Plus className="w-3.5 h-3.5" /> New Event
-          </button>
         </div>
       </div>
 
@@ -287,98 +257,24 @@ export const CalendarApp = () => {
             onEventClick={setSelected}
           />
         )}
-        {view === 'week' && <WeekView tone={tone} dark={dark} current={current} today={today} events={events} onSlotClick={openCreate} onEventClick={setSelected} />}
-        {view === 'day' && <DayView tone={tone} dark={dark} current={current} today={today} events={events} onSlotClick={openCreate} onEventClick={setSelected} />}
+        {view === 'week' && <WeekView tone={tone} dark={dark} current={current} today={today} events={events} onEventClick={setSelected} />}
+        {view === 'day' && <DayView tone={tone} dark={dark} current={current} today={today} events={events} onEventClick={setSelected} />}
         {view === 'list' && <ListView tone={tone} current={current} events={events} onEventClick={setSelected} />}
       </div>
 
       {selected && (
         <Modal tone={tone} onClose={() => setSelected(null)} title={selected.title} accent={COLORS_HEX[selected.color]}>
           <div className="text-[13px]" style={{ color: tone.text }}>
-            {selected.startTime.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+            {selected.startTime.toLocaleString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
           </div>
           <div className="text-[13px] mt-0.5" style={{ color: tone.sub }}>
-            {selected.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} – {selected.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+            {selected.allDay ? 'All-day' : `${selected.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })} – ${selected.endTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`}
           </div>
+          {selected.description && (
+            <p className="mt-3 text-[13px] leading-relaxed" style={{ color: tone.text }}>{selected.description}</p>
+          )}
           <div className="mt-4 flex items-center justify-end gap-2">
-            <button
-              onClick={() => { setEvents((p) => p.filter((e) => e.id !== selected.id)); setSelected(null); }}
-              className="h-8 px-3 rounded-md text-[12.5px] border"
-              style={{ borderColor: tone.border, color: tone.text }}
-            >Delete</button>
             <button onClick={() => setSelected(null)} className="h-8 px-3 rounded-md text-[12.5px] text-white" style={{ background: '#fa2d48' }}>Close</button>
-          </div>
-        </Modal>
-      )}
-
-      {creating && (
-        <Modal tone={tone} onClose={() => setCreating(false)} title="New Event" accent="#fa2d48">
-          <input
-            autoFocus
-            value={draft.title}
-            onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-            placeholder="Event title"
-            className="w-full h-9 px-3 rounded-md border text-[13px] outline-none"
-            style={{ background: tone.input, borderColor: tone.inputBorder, color: tone.text }}
-          />
-
-          <div className="text-[11px] uppercase tracking-wider mt-4 mb-1" style={{ color: tone.sub }}>Date</div>
-          <input
-            type="date"
-            value={draft.date}
-            onChange={(e) => setDraft((d) => ({ ...d, date: e.target.value }))}
-            className="w-full h-9 px-3 rounded-md border text-[13px] outline-none"
-            style={{ background: tone.input, borderColor: tone.inputBorder, color: tone.text, colorScheme: dark ? 'dark' : 'light' }}
-          />
-
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            <div>
-              <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: tone.sub }}>Start</div>
-              <input
-                type="time"
-                value={`${String(draft.startH).padStart(2,'0')}:${String(draft.startM).padStart(2,'0')}`}
-                onChange={(e) => {
-                  const [h, m] = e.target.value.split(':').map(Number);
-                  setDraft((d) => ({ ...d, startH: h, startM: m }));
-                }}
-                className="w-full h-9 px-3 rounded-md border text-[13px] outline-none"
-                style={{ background: tone.input, borderColor: tone.inputBorder, color: tone.text , colorScheme: dark ? "dark" : "light" }}
-              />
-            </div>
-            <div>
-              <div className="text-[11px] uppercase tracking-wider mb-1" style={{ color: tone.sub }}>End</div>
-              <input
-                type="time"
-                value={`${String(draft.endH).padStart(2,'0')}:${String(draft.endM).padStart(2,'0')}`}
-                onChange={(e) => {
-                  const [h, m] = e.target.value.split(':').map(Number);
-                  setDraft((d) => ({ ...d, endH: h, endM: m }));
-                }}
-                className="w-full h-9 px-3 rounded-md border text-[13px] outline-none"
-                style={{ background: tone.input, borderColor: tone.inputBorder, color: tone.text , colorScheme: dark ? "dark" : "light" }}
-              />
-            </div>
-          </div>
-
-          <div className="text-[11px] uppercase tracking-wider mt-4 mb-1" style={{ color: tone.sub }}>Color</div>
-          <div className="flex items-center gap-2">
-            {(['red','gray','green','blue','orange'] as const).map((c) => (
-              <button
-                key={c}
-                onClick={() => setDraft((d) => ({ ...d, color: c }))}
-                className="w-6 h-6 rounded-full transition-transform hover:scale-110"
-                style={{
-                  background: COLORS_HEX[c],
-                  outline: draft.color === c ? `2px solid ${tone.text}` : 'none',
-                  outlineOffset: 2,
-                }}
-              />
-            ))}
-          </div>
-
-          <div className="mt-5 flex items-center justify-end gap-2">
-            <button onClick={() => setCreating(false)} className="h-8 px-3 rounded-md text-[12.5px] border" style={{ borderColor: tone.border, color: tone.text }}>Cancel</button>
-            <button onClick={submitCreate} className="h-8 px-3 rounded-md text-[12.5px] text-white" style={{ background: '#fa2d48' }}>Add</button>
           </div>
         </Modal>
       )}
@@ -525,7 +421,7 @@ const MonthView = ({ current, today, events, onCellClick, onEventClick, tone, da
                     className="text-[10.5px] truncate px-1.5 py-px rounded cursor-pointer"
                     style={evChip(COLORS_HEX[e.color], dark)}
                   >
-                    {e.startTime.toLocaleTimeString('en-US', { hour: 'numeric' })} {e.title}
+                    {e.allDay ? e.title : `${e.startTime.toLocaleTimeString('en-US', { hour: 'numeric' })} ${e.title}`}
                   </div>
                 ))}
               </div>
@@ -537,12 +433,13 @@ const MonthView = ({ current, today, events, onCellClick, onEventClick, tone, da
   );
 };
 
-const WeekView = ({ current, today, events, onSlotClick, onEventClick, tone, dark }: {
+const WeekView = ({ current, today, events, onEventClick, tone, dark }: {
   current: Date; today: Date; events: CalEvent[];
-  onSlotClick: (d: Date, h: number) => void; onEventClick: (e: CalEvent) => void; tone: Tone; dark: boolean;
+  onEventClick: (e: CalEvent) => void; tone: Tone; dark: boolean;
 }) => {
   const start = startOfWeek(current);
   const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(start); d.setDate(start.getDate() + i); return d; });
+  const hasAllDay = events.some((e) => e.allDay && days.some((d) => sameDay(e.startTime, d)));
   return (
     <div className="h-full flex flex-col">
       <div className="grid border-b" style={{ gridTemplateColumns: '60px repeat(7, 1fr)', borderColor: tone.border }}>
@@ -557,26 +454,45 @@ const WeekView = ({ current, today, events, onSlotClick, onEventClick, tone, dar
           );
         })}
       </div>
+      {hasAllDay && (
+        <div className="grid border-b" style={{ gridTemplateColumns: '60px repeat(7, 1fr)', borderColor: tone.border }}>
+          <div className="text-[10.5px] text-right pr-2 py-1" style={{ color: tone.sub }}>all-day</div>
+          {days.map((d, di) => (
+            <div key={di} className="border-l px-1 py-1 space-y-0.5 min-w-0" style={{ borderColor: tone.border }}>
+              {events.filter((e) => e.allDay && sameDay(e.startTime, d)).map((e) => (
+                <div
+                  key={e.id}
+                  onClick={() => onEventClick(e)}
+                  className="text-[10.5px] px-1.5 py-0.5 rounded truncate cursor-pointer"
+                  style={evChip(COLORS_HEX[e.color], dark)}
+                >
+                  {e.title}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex-1 overflow-auto thin-scrollbar">
         <div className="grid" style={{ gridTemplateColumns: '60px repeat(7, 1fr)' }}>
           {HOURS.map((h) => (
             <div key={h} className="contents">
               <div className="text-[10.5px] text-right pr-2 pt-1 border-t h-12" style={{ color: tone.sub, borderColor: tone.border }}>{h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`}</div>
               {days.map((d, di) => {
-                const evs = events.filter((e) => sameDay(e.startTime, d) && e.startTime.getHours() === h);
+                const evs = events.filter((e) => !e.allDay && sameDay(e.startTime, d) && e.startTime.getHours() === h);
                 return (
-                  <button key={di} onClick={() => onSlotClick(d, h)} className="border-t border-l h-12 relative" style={{ borderColor: tone.border }}>
+                  <div key={di} className="border-t border-l h-12 relative" style={{ borderColor: tone.border }}>
                     {evs.map((e) => (
                       <div
                         key={e.id}
-                        onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }}
-                        className="absolute inset-x-1 top-0.5 text-[10.5px] px-1.5 py-0.5 rounded truncate"
+                        onClick={() => onEventClick(e)}
+                        className="absolute inset-x-1 top-0.5 text-[10.5px] px-1.5 py-0.5 rounded truncate cursor-pointer"
                         style={evChip(COLORS_HEX[e.color], dark)}
                       >
                         {e.title}
                       </div>
                     ))}
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -587,11 +503,12 @@ const WeekView = ({ current, today, events, onSlotClick, onEventClick, tone, dar
   );
 };
 
-const DayView = ({ current, today, events, onSlotClick, onEventClick, tone, dark }: {
+const DayView = ({ current, today, events, onEventClick, tone, dark }: {
   current: Date; today: Date; events: CalEvent[];
-  onSlotClick: (d: Date, h: number) => void; onEventClick: (e: CalEvent) => void; tone: Tone; dark: boolean;
+  onEventClick: (e: CalEvent) => void; tone: Tone; dark: boolean;
 }) => {
   const isToday = sameDay(current, today);
+  const allDayEvents = events.filter((e) => e.allDay && sameDay(e.startTime, current));
   return (
     <div className="h-full flex flex-col">
       <div className="px-4 py-2 border-b text-[12px] flex items-center gap-2" style={{ borderColor: tone.border }}>
@@ -600,17 +517,34 @@ const DayView = ({ current, today, events, onSlotClick, onEventClick, tone, dark
           {current.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </span>
       </div>
+      {allDayEvents.length > 0 && (
+        <div className="grid border-b" style={{ gridTemplateColumns: '80px 1fr', borderColor: tone.border }}>
+          <div className="text-[11px] text-right pr-3 pt-2" style={{ color: tone.sub }}>all-day</div>
+          <div className="py-1 pr-3 space-y-1">
+            {allDayEvents.map((e) => (
+              <div
+                key={e.id}
+                onClick={() => onEventClick(e)}
+                className="text-[12px] px-2 py-1 rounded cursor-pointer"
+                style={evChip(COLORS_HEX[e.color], dark)}
+              >
+                <div className="font-medium">{e.title}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="flex-1 overflow-auto thin-scrollbar">
         {HOURS.map((h) => {
-          const evs = events.filter((e) => sameDay(e.startTime, current) && e.startTime.getHours() === h);
+          const evs = events.filter((e) => !e.allDay && sameDay(e.startTime, current) && e.startTime.getHours() === h);
           return (
-            <button key={h} onClick={() => onSlotClick(current, h)} className="w-full grid border-b text-left" style={{ gridTemplateColumns: '80px 1fr', borderColor: tone.border }}>
+            <div key={h} className="w-full grid border-b text-left" style={{ gridTemplateColumns: '80px 1fr', borderColor: tone.border }}>
               <div className="text-[11px] text-right pr-3 pt-2" style={{ color: tone.sub }}>{h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`}</div>
               <div className="min-h-[56px] py-1 pr-3 space-y-1">
                 {evs.map((e) => (
                   <div
                     key={e.id}
-                    onClick={(ev) => { ev.stopPropagation(); onEventClick(e); }}
+                    onClick={() => onEventClick(e)}
                     className="text-[12px] px-2 py-1 rounded cursor-pointer"
                     style={evChip(COLORS_HEX[e.color], dark)}
                   >
@@ -621,7 +555,7 @@ const DayView = ({ current, today, events, onSlotClick, onEventClick, tone, dark
                   </div>
                 ))}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
@@ -652,7 +586,7 @@ const ListView = ({ current, events, onEventClick, tone }: { current: Date; even
               </div>
               <div className="flex-1 text-[13px] font-medium truncate">{e.title}</div>
               <div className="text-[11.5px]" style={{ color: tone.sub }}>
-                {e.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                {e.allDay ? 'All-day' : e.startTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
               </div>
             </button>
           ))}
