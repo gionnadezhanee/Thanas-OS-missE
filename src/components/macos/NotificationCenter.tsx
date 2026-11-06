@@ -10,7 +10,6 @@ const NOTIFS = [
   { app: 'Mail', title: 'Parts Express', body: 'Happy Memorial Day! Tiered Offer — Free shipping on US orders over $50.', when: '38m ago' },
   { app: 'AppleInsider', title: 'New Story', body: 'Elgato intros Stream Deck Mobile app, turning iPhones into live broadcast controllers.', when: '53m ago' },
   { app: 'Updates', title: 'App update available', body: 'There is 1 App update available.', when: '9:19 AM' },
-  { app: 'Calendar', title: 'Lunch with team', body: 'Today at 1:00 PM — Cubbon Park', when: 'Today' },
 ];
 
 export const NotificationCenter = ({ open, onClose }: Props) => {
