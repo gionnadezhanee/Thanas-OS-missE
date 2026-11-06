@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink } from 'lucide-react';
 import { widgetGlass } from './widgetGlass';
 
 const PROFILE_URL = 'https://www.pinterest.com/misseditaire/';
@@ -30,6 +29,7 @@ const loadPinterestScript = () => {
 
 export const PinterestWidget = () => {
   const embedRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading');
 
   useEffect(() => {
@@ -72,8 +72,8 @@ export const PinterestWidget = () => {
   }, []);
 
   return (
-    <section aria-label="Pinterest Moodboard" className="flex h-[172px] w-[172px] shrink-0 flex-col overflow-hidden rounded-3xl text-white" style={widgetGlass}>
-      <div className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-2 pt-2">
+    <section aria-label="Pinterest Moodboard" className="relative h-[172px] w-[172px] shrink-0 overflow-hidden rounded-3xl text-white" style={widgetGlass}>
+      <div ref={scrollRef} className="relative h-full overflow-y-auto overflow-x-hidden px-2">
         {status !== 'ready' && (
           <div className="absolute inset-0 flex items-center justify-center px-4 text-center text-xs text-white/75" role="status">
             {status === 'loading' ? 'Loading moodboard...' : 'Moodboard unavailable.'}
@@ -83,9 +83,23 @@ export const PinterestWidget = () => {
           <div ref={embedRef} className={`m-auto ${status === 'ready' ? '' : 'invisible'}`} />
         </div>
       </div>
-      <a href={PROFILE_URL} target="_blank" rel="noopener noreferrer" className="flex shrink-0 items-center justify-center gap-1 pb-1.5 pt-1 text-[10px] text-white/90 hover:text-white" title="Open Miss Editaire's Pinterest profile">
-        Open profile <ExternalLink className="h-3 w-3" aria-hidden="true" />
-      </a>
+      <a
+        href={PROFILE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open Miss Editaire's Pinterest profile in a new tab"
+        className="absolute inset-0 z-10 cursor-pointer rounded-3xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-white"
+        onWheel={event => {
+          if (scrollRef.current) scrollRef.current.scrollTop += event.deltaY;
+        }}
+        onKeyDown={event => {
+          if (!scrollRef.current) return;
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            scrollRef.current.scrollTop += event.key === 'ArrowDown' ? 40 : -40;
+          }
+        }}
+      />
     </section>
   );
 };
